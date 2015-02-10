@@ -22,6 +22,8 @@ interface QueueConst
     const PKG_CID           = 'O';    // origin requestId, 
     const PKG_RESPONSE      = 'R';    // SETTLE stuff, response style to delivery, lookup to RESP_*
 
+    const PKG_LEVEL         = 'V';    // cluster mode, repeater count
+
     // header PKG_CMD tag content   I immediate S stack, E with emit
     const CMD_ECHO      = 'ECHO';       // I  echo the message content
     const CMD_SUB       = 'SUB';        // SE subscribe for call and publish messages
@@ -36,6 +38,8 @@ interface QueueConst
     const CMD_PUSH      = 'PUSH';       // S  client asks send the message to all storages to keep, client receives the maker
     const CMD_SETTLE    = 'SETTLE';     // I  worker response about message/task result (CALL/PUSH/PUB)
     const CMD_STREAM    = '~';          // I  worker streaming request (PUB/CALL/PUSH)
+
+    const CMD_PEAR      = 'PEAR';
 
     // header PKG_RESPONSE tag content
     const RESP_OK      = '+';

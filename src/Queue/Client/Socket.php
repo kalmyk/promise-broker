@@ -28,10 +28,16 @@ class Socket
                         $client->receive($message);
                 }
                 catch (\Exception $e) {
-                    $connection->close();
+                    $client->close();
                     return;
                 }
+            }
+        );
 
+        $stream->on('close',
+            function () use ($client)
+            {
+                $client->close(); // is it working?
             }
         );
     }

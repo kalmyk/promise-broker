@@ -1,5 +1,7 @@
 <?php
 
+namespace QueueTests;
+
 use \Toa\Queue\Client\QueueClient;
 use \Toa\Queue\Client\Command\Call;
 use \Toa\Queue\Client\Command\Marker;
@@ -7,7 +9,7 @@ use \Toa\Queue\Client\Command\Subscribe;
 use \Toa\Queue\Client\Command\Trace;
 use \Toa\Queue\Server\PromiseBroker;
 
-class BrokerTest extends \PHPUnit_Framework_TestCase
+class BrokerTest extends \QueueTests\BrokerTestBase
 {
     private $client = NULL;
     private $worker = NULL;
@@ -15,79 +17,12 @@ class BrokerTest extends \PHPUnit_Framework_TestCase
 
     private $clientState = NULL;
     private $workerState = NULL;
-    
-    private $sock1, $sock2, $sock3, $sock4 = NULL;
-
-    public function connectClient($name, &$serverState, &$cliSocket, &$srvSocket)
-    {
-        // the Network!
-        $cliSocket = new \Toa\Queue\NullStream();
-        $srvSocket = new \Toa\Queue\NullStream();
-        $cliSocket->setStream($srvSocket);
-        $srvSocket->setStream($cliSocket);
-
-        // Listen data on the Queue Server
-        $serverState = new \Toa\Queue\Server\ClientState($this->server);
-        $srvSocket->setOnReceive(
-            function ($data) use ($serverState, $name)
-            {
-                $this->assertTrue(is_array($data));
-                foreach ($data as $line)
-                {
-//echo "$name > S $line\n";
-//file_put_contents('/tmp/q.log', "$name > S $line\n", FILE_APPEND);
-                    $this->assertTrue(is_string($line));
-                }
-                $this->server->process($data, $serverState);
-            }
-        );
-        $serverState->onMessage(
-            function ($message) use ($srvSocket)
-            {
-                $srvSocket->send($message);
-            }
-        );
-
-        // Client or Worker
-        $cli = new QueueClient();
-        $cliSocket->setOnReceive(
-            function ($data) use ($cli, $name)
-            {
-                $this->assertTrue(is_array($data));
-                foreach ($data as $line)
-                {
-//echo "S > $name $line\n";
-//file_put_contents('/tmp/q.log', "$name < S $line\n", FILE_APPEND);
-                    $this->assertTrue(is_string($line), 'protocol error');
-                }
-                $cli->receive($data);
-            }
-        );
-        $cli->onMessage(
-            function ($data) use ($cliSocket)
-            {
-                $cliSocket->send($data);
-            }
-        );
-        return $cli;
-    }
-
-    private function flushStreams()
-    {
-        while (
-            $this->sock1->processBuffer() ||
-            $this->sock2->processBuffer() ||
-            $this->sock3->processBuffer() ||
-            $this->sock4->processBuffer()
-        )
-            ;
-    }
 
     public function setUp()
     {
-        $this->server = new PromiseBroker();
-        $this->client = $this->connectClient('C', $this->clientState, $this->sock1, $this->sock2);
-        $this->worker = $this->connectClient('W', $this->workerState, $this->sock3, $this->sock4);
+        $this->server = new PromiseBroker('SERVER');
+        $this->client = $this->connectClient('S', $this->server, 'C', $this->clientState);
+        $this->worker = $this->connectClient('S', $this->server, 'W', $this->workerState);
     }
 
     public function tearDown()
@@ -166,7 +101,7 @@ class BrokerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(QueueClient::ERROR_NO_QUEUE_FOUND, $fail_reason[QueueClient::RESP_ERROR_CODE]);
     }
 
-    function testSubReader()
+    function testRemoteCall()
     {
         $result_sub = NULL;
         $worker_calls = 0;
@@ -578,6 +513,7 @@ class BrokerTest extends \PHPUnit_Framework_TestCase
     function testTrace()
     {
         $read_error_arrived = NULL;
+        $trace = '';
         $this->worker->trace('customer', 1)->then(
             function ($response)
             {
@@ -586,13 +522,30 @@ class BrokerTest extends \PHPUnit_Framework_TestCase
             {
                 $read_error_arrived = 'error arrived';
             },
-            function ($task)
+            function ($task) use (&$trace)
             {
+                $trace = 
+                    $task->chanel().'.'.
+                    $task->markId().'.'.
+                    $task->markSegment();
                 $task->resolve(true);
             }
         );
-        $this->worker->marker('customer', '', 'new_prefix', 'new_segment');
+        $this->worker->marker('customer', '', 'new_segment', 22);
         $this->worker->pull();
+        $this->flushStreams();
+
+        $sub = '';
+        $this->client->subscribe('customer')->then(NULL,NULL,
+            function ($task) use (&$sub)
+            {
+                $sub = 
+                    $task->chanel().'.'.
+                    $task->markId().'.'.
+                    $task->markSegment();
+                $task->resolve(true);
+            }
+        );
 
         $error_arrived = NULL;
         $response_arrived = NULL;
@@ -606,10 +559,17 @@ class BrokerTest extends \PHPUnit_Framework_TestCase
                 $error_arrived = $reason;
             }
         );
-        $this->assertEquals(NULL, $error_arrived);
-// TODO: test is not working, no flush, no positive check
+        $this->client->pull();
+        $this->flushStreams();
+
+        $this->assertEquals('chanel_not_exists.23.new_segment', $trace);
+        $this->assertEquals('chanel_not_exists.23.new_segment', $sub);
+        $this->assertEquals(array('quorum'=>1,'send'=>2), $response_arrived);
+
         $this->worker->unTrace('customer');
+        $this->client->unSub('customer');
         $this->worker->stopPull();
+        $this->client->stopPull();
     }
 
     function testScenario()
@@ -662,52 +622,45 @@ class BrokerTest extends \PHPUnit_Framework_TestCase
 
     function testSuspendResume()
     {
-        $done_sub = 0;
-        $done_pub = 0;
-        $done_read = 0;
+        $log = '';
         $this->worker->trace('push', 1)->then(NULL,NULL,
-            function ($task) use (&$done_read, $done_sub, $done_pub)
+            function ($task) use (&$log)
             {
-                $done_read++;
                 $task->resolve(true);
-                $this->assertEquals(0, $done_sub, 'push has to be handled first');
-                $this->assertEquals(0, $done_pub, 'push has to be handled first');
-                $this->assertEquals("push.value.$done_read", $task->getData(), 'push order broken');
+                $log .= "\n".$task->getData();
             }
         );
         $this->worker->subscribe('publish')->then(NULL,NULL,
-            function ($task) use (&$done_sub, &$done_pub)
+            function ($task) use (&$log)
             {
-                if ($task->getData() == 'pub.value')
-                    $done_pub++;
+                if (strpos($task->getData(), 'pub.'))
+                    $log .= "\n".$task->getData();
                 else
-                    $done_sub++;
+                    $log .= "\n".$task->getData();
                 $task->resolve(true);
             }
         );
         $this->flushStreams();
         
-        $this->client->publish('publish', 'pub.value');
+        $this->client->publish('publish', 'pub.1');
         $this->client->call('publish', 'call.value');
-        $this->client->publish('publish', 'pub.value');
-        $this->client->push('push', 'push.value.1');
-        $this->client->publish('publish', 'pub.value');
-        $this->client->push('push', 'push.value.2');
-        $this->client->publish('publish', 'pub.value');
-        $this->client->push('push', 'push.value.3');
-        $this->client->publish('publish', 'pub.value');
+        $this->client->publish('publish', 'pub.2');
+        $this->client->push('push', 'push.1');
+        $this->client->publish('publish', 'pub.3');
+        $this->client->push('push', 'push.2');
+        $this->client->publish('publish', 'pub.4');
+        $this->client->push('push', 'push.3');
+        $this->client->publish('publish', 'pub.5');
         $this->flushStreams();
-
-        $this->assertEquals(0, $done_pub, 'publish arrived in suspend mode');
-        $this->assertEquals(0, $done_sub, 'call arrived in suspend mode');
-        $this->assertEquals(0, $done_read, 'push arrived in suspend mode');
 
         $this->worker->pull();
         $this->flushStreams();
 
-        $this->assertEquals(5, $done_pub, 'publish does not arrived');
-        $this->assertEquals(1, $done_sub, 'call does not arrived after resume');
-        $this->assertEquals(3, $done_read, 'push does not arrived after resume');
+        $this->assertEquals(
+            "\npush.1\npush.2\npush.3\npub.1\npub.2\npub.3\npub.4\npub.5\ncall.value",
+            $log,
+            'work order push/pub/call'
+        );
 
         $this->worker->unSub('publish');
         $this->worker->unTrace('push');
@@ -717,12 +670,13 @@ class BrokerTest extends \PHPUnit_Framework_TestCase
     function testStorageMode()
     {
         // start remote storage, it is ready to provide history
-        $this->worker->marker('customer', '', 'worker_page');
+        $cur_storage_id = 12;
+        $this->worker->marker('customer', '', 'worker_page', $cur_storage_id);
         $this->worker->subscribe('customer.storage')->then(NULL,NULL,
             function ($task)
             {
                 $filter = $task->getData();
-                $task->progress(array($filter['from']=>'record '.$filter['from']));
+                $task->progress(array($filter['from']+1=>'record '.($filter['from']+1)));
                 $task->progress(array($filter['to']=>'record '.$filter['to']));
                 $task->resolve('all found');
             }
@@ -736,16 +690,16 @@ class BrokerTest extends \PHPUnit_Framework_TestCase
         );
         $storage_last_id = 10;
     
-        $cmd = new Marker('customer', 'my_segment', 'new_segment');
+        $cmd = new Marker('customer');
         $cmd->then(
-            new Trace('customer', 1),
-            new Trace('customer', 1)    // trace in case new segment init is failed
+            new Trace('customer', 1)
         );
         
+        $cur = NULL;
         $this->client->send($cmd, NULL)->then(
             NULL,
             NULL,
-            function ($task) use (&$storage_db, &$current_marker)
+            function ($task) use (&$storage_db, &$cur)
             {
                 if (is_object($task))
                 {
@@ -754,7 +708,7 @@ class BrokerTest extends \PHPUnit_Framework_TestCase
                 }
                 else
                 {
-                    $current_marker = $task;
+                    $cur = $task;
                 }
             }
         );
@@ -763,11 +717,11 @@ class BrokerTest extends \PHPUnit_Framework_TestCase
         // concurent write
         $this->worker->push('customer', array('13' => 'record 13'));
         $this->worker->push('customer', array('14' => 'record 14'));
-print_r($current_marker);
+
         $this->client->call('customer.storage', array(
             'func' => 'history',
-            'from' => $storage_last_id + 1,
-            'to' => $current_marker['current_id'] + 12   /// current marker is 1
+            'from' => $storage_last_id,  // 10
+            'to' => $cur['current_id']   // 12
         ))->then(
             function ($response)
             {

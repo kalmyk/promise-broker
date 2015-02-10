@@ -3,7 +3,8 @@
     "description": "queue",
     "autoload": {
         "psr-4": {
-            "Toa\\": "src"
+            "Toa\\": "src",
+            "QueueTests\\": "tests"
         }
     },
     "require": {

@@ -22,9 +22,7 @@ class CommandSub extends CommandBaseSub
             );
             return NULL;
         }
-
         $broker->addSub($this);
-        $broker->checkWaitTask($this->client);
     }
 
     public function sendToClient($mode, $header, $rawData)

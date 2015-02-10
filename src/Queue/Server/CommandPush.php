@@ -9,6 +9,8 @@ class CommandPush extends CommandDeferred
     private $pushQuorum = 0;
     private $traceCount = 0;
     private $rawData = NULL;
+    private $msgId = NULL;
+    private $msgSegment = NULL;
 
     private function cmdPush_GetQuorum($broker, &$quorum, &$tracers, $chanelId)
     {
@@ -35,6 +37,12 @@ class CommandPush extends CommandDeferred
             self::PKG_CHANEL => $this->chanel,
             self::PKG_CLIENT => $this->client->getId()
         );
+
+        if ($this->msgId)
+        {
+            $header[self::PKG_GEN_ID] = $this->msgId;
+            $header[self::PKG_SEGMENT] = $this->msgSegment;
+        }
 
         $sends = $this->traceCount + $this->nofifySubCnahel($broker, $this->chanel, $header);
 
@@ -76,9 +84,10 @@ class CommandPush extends CommandDeferred
 
         if (isset($broker->pager[$this->queueId])) // generete message ID if generator defined
         {
-            $this->header[self::PKG_GEN_ID] = ++$broker->pager[$this->queueId][self::RESP_CURRENT_ID];
+            $this->msgId = ++$broker->pager[$this->queueId][self::RESP_CURRENT_ID];
+            $this->msgSegment = $broker->pager[$this->queueId][self::RESP_SEGMENT];
         }
-//echo "quorum $quorum\n";
+
         $this->pushQuorum = $quorum;
         $this->responseQuorum = $quorum;
         $this->traceCount = count($tracers);
@@ -90,6 +99,12 @@ class CommandPush extends CommandDeferred
         );
         if ($this->id)
             $header[self::PKG_CID] = $this->id;
+            
+        if ($this->msgId)
+        {
+            $header[self::PKG_GEN_ID] = $this->msgId;
+            $header[self::PKG_SEGMENT] = $this->msgSegment;
+        }
 
         foreach ($tracers as $subD)
             $subD->client->checkPush($broker, $subD, $header, $rawData);

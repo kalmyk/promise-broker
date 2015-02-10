@@ -8,6 +8,8 @@ class ClientState implements \Toa\Queue\QueueConst
     private $popState = 0;
     private $onMessage = NULL;
 
+//    public $pearServer = NULL;
+
     /**
         subscribtion commands
             [$id] => CommandBaseSub
@@ -20,15 +22,9 @@ class ClientState implements \Toa\Queue\QueueConst
     */
     private $subAndTrace = array();
 
-    /**
-        pending PUSH comands
-            [] => deferred
-    */
-    private $pushStack = array();
-
-    public function __construct(PromiseBroker $queue)
+    public function __construct(PromiseBroker $broker)
     {
-        $this->clientId = $queue->attachClient($this);
+        $this->clientId = $broker->attachClient($this);
     }
 
     function onMessage(callable $onMessage)
@@ -64,11 +60,11 @@ class ClientState implements \Toa\Queue\QueueConst
     public function addSubscription($subD)
     {
         $this->sub[$subD->id] = $subD;
+        $this->subAndTrace[$subD->id] = $subD;
     }
 
     public function addTrace($subD)
     {
-        $this->sub[$subD->id] = $subD;
         $this->subAndTrace[$subD->id] = $subD;
     }
 
@@ -91,22 +87,25 @@ class ClientState implements \Toa\Queue\QueueConst
         }
         else
         {
-            $this->pushStack[] = array($subD, $header, $rawData);
+            $subD->pushStack($header, $rawData);
         }
     }
 
     public function processPendingPush($broker)
     {
-        if (count($this->pushStack) == 0)
-            return false;
-        
-        list($subD, $header, $rawData) = array_shift($this->pushStack);
-        $broker->dSettle(
-            $subD,
-            self::RESP_EMIT,
-            $rawData,
-            $header
-        );
+        foreach ($this->subAndTrace as $subD)
+        {
+            while ($this->getPopState() && $stack = $subD->popStack())
+            {
+                list($header, $rawData) = $stack;
+                $broker->dSettle(
+                    $subD,
+                    self::RESP_EMIT,
+                    $rawData,
+                    $header
+                );
+            }
+        }
         return true;
     }
     

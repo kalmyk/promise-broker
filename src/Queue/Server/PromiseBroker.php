@@ -45,8 +45,16 @@ class PromiseBroker implements \Toa\Queue\QueueConst
     */
     public $client  = array();
 
+    private $pearServer = array();  // pearServer
+
     private $genClientId = 0; 
     private $stack = NULL; // current command stack
+    private $id = '';
+
+    public function __construct($id)
+    {
+        $this->id = $id;
+    }
 
     public function attachClient(ClientState $client)
     {
@@ -61,6 +69,27 @@ class PromiseBroker implements \Toa\Queue\QueueConst
         unset($this->client[$clientId]);
         // TODO: clean subs
         return NULL;
+    }
+    
+    public function attachPear(ClientState $pearServer)
+    {
+        $this->pearServer[] = $pearServer;
+    }
+
+    private function confirmRepl($d)
+    {
+        $a = array();
+        foreach ($this->pearServer as $repl)
+        {
+            $d->sendToServer($repl);
+//            $a[] = $repl->confirm($d);
+        }
+/*        return \React\Promise\map($a,
+            function ()
+            {
+                echo "map callback\n";
+            }
+        );*/
     }
     
     public function getSub($queueId, $chanelId, $clientId)
@@ -82,7 +111,12 @@ class PromiseBroker implements \Toa\Queue\QueueConst
     public function addSub($subD)
     {
         $this->wSub[$subD->queue][$subD->chanel][$subD->client->getId()] = $subD;
+
         $subD->client->addSubscription($subD);
+        $subD->enable();
+        $this->checkWaitTask($subD->client);
+
+        $this->confirmRepl($subD);
     }
 
     public function removeSub($client, $subD)
@@ -204,8 +238,7 @@ class PromiseBroker implements \Toa\Queue\QueueConst
 
     public function checkWaitTask($worker)
     {
-        while ($worker->getPopState() && $worker->processPendingPush($this))
-            ;
+        $worker->processPendingPush($this);
         $found = false;
         if ($worker->getPopState())
         {
@@ -276,11 +309,13 @@ class PromiseBroker implements \Toa\Queue\QueueConst
         case self::CMD_UNPOP:   return new CommandUnPop     ($cmd, $client);
         case self::CMD_MARKER:  return new CommandMarker    ($cmd, $client);
 
+        case self::CMD_PEAR:    return new CommandPear      ($cmd, $client);
+
         case 'login' :
             break;
 
         default:
-            throw new \Exception("to be function not found ".$cmd[self::PKG_CMD]);
+            throw new \Exception("function not found ".$cmd[self::PKG_CMD]);
         }
     }
 

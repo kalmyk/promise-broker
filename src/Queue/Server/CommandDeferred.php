@@ -64,9 +64,26 @@ class CommandDeferred implements \Toa\Queue\QueueConst
         }
     }
     
+    public function getLevel()
+    {
+        return isset($this->header[self::PKG_LEVEL]) ? $this->header[self::PKG_LEVEL] : 0;
+    }
+
     public function sendToClient($mode, $header, $rawData)
     {
         $this->client->send(array(json_encode($header),$rawData));
+    }
+
+    public function sendToServer($serverState)
+    {
+        $header = $this->header;
+        $header[self::PKG_LEVEL] = $this->getLevel()+1;
+        $serverState->send(
+            array(
+                json_encode($header),
+                json_encode(NULL)
+            )
+        );
     }
 
     public function isFinished()

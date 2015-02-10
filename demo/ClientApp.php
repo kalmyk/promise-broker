@@ -18,7 +18,7 @@ class ClientApp
         $this->qCli = $qCli;
     }
 
-    public function run()
+    public function run_test_echo()
     {
         $this->qCli->getEcho('Started')->then(
             function ($r) {echo "response $r\n";}
@@ -42,5 +42,28 @@ class ClientApp
         }
         if ($this->qCli->getPendingCmdCount() == 1)  // still in the command, it is removed after the callback
             $this->socket->close();
+    }
+
+    public function run_test_sub($count)
+    {
+        $this->qCli->call('job', "data $count")->then(
+            function ($response) use ($count)
+            {
+//                echo "response $response\n";
+                if ($count > 0)
+                    $this->run_test_sub($count-1);
+                else
+                    $this->socket->close();
+            }
+        );
+
+    }
+    
+    public function run()
+    {
+        for ($i=0; $i<2; $i++)
+            $this->run_test_sub(10);
+
+//        $this->run_test_echo();
     }
 }

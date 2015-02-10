@@ -42,6 +42,21 @@ class QueueTask implements \Toa\Queue\QueueConst
         return $this->data;
     }
 
+    public function chanel()
+    {
+        return $this->cmd[self::PKG_CHANEL];
+    }
+
+    public function markId()
+    {
+        return isset($this->cmd[self::PKG_GEN_ID]) ? $this->cmd[self::PKG_GEN_ID] : 0;
+    }
+
+    public function markSegment()
+    {
+        return isset($this->cmd[self::PKG_SEGMENT]) ? $this->cmd[self::PKG_SEGMENT] : '';
+    }
+
     public function resolve($data, $chanel=NULL)
     {
         if (!$this->isFinished())
