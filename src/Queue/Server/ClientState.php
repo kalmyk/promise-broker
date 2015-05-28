@@ -1,8 +1,8 @@
 <?php
 
-namespace Toa\Queue\Server;
+namespace Kalmyk\Queue\Server;
 
-class ClientState implements \Toa\Queue\QueueConst
+class ClientState implements \Kalmyk\Queue\QueueConst
 {
     private $clientId = NULL;
     private $popState = 0;

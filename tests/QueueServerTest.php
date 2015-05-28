@@ -12,12 +12,12 @@ class QueueServerTest extends \PHPUnit_Framework_TestCase
         $dns = $dnsResolverFactory->createCached('8.8.8.8', $loop);
 
         $connector = new React\SocketClient\Connector($loop, $dns);
-        $this->client = new \Toa\Queue\Client\QueueClient();
+        $this->client = new \Kalmyk\Queue\Client\QueueClient();
 
         \React\Promise\Resolve($connector->createSocketForAddress(QUEUE_SERVER_HOST, QUEUE_SERVER_PORT))->then(
             function ($response)
             {
-                $socket = new \Toa\Queue\Client\Socket($response, $this->client);
+                $socket = new \Kalmyk\Queue\Client\Socket($response, $this->client);
                 $app->run();
             },
             function ($reason)

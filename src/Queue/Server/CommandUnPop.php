@@ -1,6 +1,6 @@
 <?php
 
-namespace Toa\Queue\Server;
+namespace Kalmyk\Queue\Server;
 
 class CommandUnPop extends CommandDeferred
 {

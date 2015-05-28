@@ -2,11 +2,11 @@
 
 namespace QueueTests;
 
-use \Toa\Queue\Server\PromiseBroker;
-use \Toa\Queue\Server\ClientState;
-use \Toa\Queue\Client\QueueClient;
-use \Toa\Queue\Server\ServerState;
-use \Toa\Queue\NullStream;
+use \Kalmyk\Queue\Server\PromiseBroker;
+use \Kalmyk\Queue\Server\ClientState;
+use \Kalmyk\Queue\Client\QueueClient;
+use \Kalmyk\Queue\Server\ServerState;
+use \Kalmyk\Queue\NullStream;
 
 class BrokerTestBase extends \PHPUnit_Framework_TestCase
 {

@@ -2,12 +2,12 @@
 
 namespace QueueTests;
 
-use \Toa\Queue\Client\QueueClient;
-use \Toa\Queue\Client\Command\Call;
-use \Toa\Queue\Client\Command\Marker;
-use \Toa\Queue\Client\Command\Subscribe;
-use \Toa\Queue\Client\Command\Trace;
-use \Toa\Queue\Server\PromiseBroker;
+use \Kalmyk\Queue\Client\QueueClient;
+use \Kalmyk\Queue\Client\Command\Call;
+use \Kalmyk\Queue\Client\Command\Marker;
+use \Kalmyk\Queue\Client\Command\Subscribe;
+use \Kalmyk\Queue\Client\Command\Trace;
+use \Kalmyk\Queue\Server\PromiseBroker;
 
 class BrokerTest extends \QueueTests\BrokerTestBase
 {

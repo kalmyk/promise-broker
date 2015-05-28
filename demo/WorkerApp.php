@@ -1,8 +1,8 @@
 <?php
 
-namespace Toa;
+namespace Kalmyk;
 
-use \Toa\Queue\Client\QueueClient;
+use \Kalmyk\Queue\Client\QueueClient;
 
 class WorkerApp
 {

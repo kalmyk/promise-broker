@@ -1,6 +1,6 @@
 <?php
 
-use \Toa\Queue\StreamParser;
+use \Kalmyk\Queue\StreamParser;
 
 class StreamParserTest extends \PHPUnit_Framework_TestCase
 {

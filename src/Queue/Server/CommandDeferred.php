@@ -1,8 +1,8 @@
 <?php
 
-namespace Toa\Queue\Server;
+namespace Kalmyk\Queue\Server;
 
-class CommandDeferred implements \Toa\Queue\QueueConst
+class CommandDeferred implements \Kalmyk\Queue\QueueConst
 {
     public $client = NULL;
     protected $header = NULL;

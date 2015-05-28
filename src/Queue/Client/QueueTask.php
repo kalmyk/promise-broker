@@ -1,8 +1,8 @@
 <?php
 
-namespace Toa\Queue\Client;
+namespace Kalmyk\Queue\Client;
 
-class QueueTask implements \Toa\Queue\QueueConst
+class QueueTask implements \Kalmyk\Queue\QueueConst
 {
     private $taskResponseCallback = NULL;
     private $cmd = NULL;            // the request content array

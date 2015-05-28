@@ -1,8 +1,8 @@
 <?php
 
-namespace Toa\Queue\Client\Command;
+namespace Kalmyk\Queue\Client\Command;
 
-class GetEcho extends \Toa\Queue\Client\QueueBaseCommand
+class GetEcho extends \Kalmyk\Queue\Client\QueueBaseCommand
 {
     public function __construct()
     {

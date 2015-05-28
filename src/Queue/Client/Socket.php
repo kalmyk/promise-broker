@@ -1,8 +1,8 @@
 <?php
 
-namespace Toa\Queue\Client;
+namespace Kalmyk\Queue\Client;
 
-use Toa\Queue\StreamParser;
+use Kalmyk\Queue\StreamParser;
 use Evenement\EventEmitter;
 
 class Socket

@@ -1,6 +1,6 @@
 <?php
 
-namespace Toa\Queue;
+namespace Kalmyk\Queue;
 
 class StreamParser
 {

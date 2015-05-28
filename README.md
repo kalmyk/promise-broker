@@ -30,11 +30,14 @@ $worker->pull();
 
 Client pattern:
 ```php
-$client->call('job', array('data' => 123)->then(
+$client->call('job', array('data' => 123))->then(
     function ($response)
     {
         echo "response $response\n";
     }
 );
 ```
+
+What is it: this is server and client code that is done on pure PHP
+Why PHP: server will be rewriten to C++ with protocol compatibility if idea is working.
 

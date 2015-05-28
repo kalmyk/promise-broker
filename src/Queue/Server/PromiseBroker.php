@@ -1,8 +1,8 @@
 <?php
 
-namespace Toa\Queue\Server;
+namespace Kalmyk\Queue\Server;
 
-class PromiseBroker implements \Toa\Queue\QueueConst
+class PromiseBroker implements \Kalmyk\Queue\QueueConst
 {
     /**
         Subscribed Workewrs for queues
@@ -76,7 +76,7 @@ class PromiseBroker implements \Toa\Queue\QueueConst
         $this->pearServer[] = $pearServer;
     }
 
-    private function confirmRepl($d)
+    public function confirmRepl($d)
     {
         $a = array();
         foreach ($this->pearServer as $repl)

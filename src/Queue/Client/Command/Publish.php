@@ -1,10 +1,10 @@
 <?php
 
-namespace Toa\Queue\Client\Command;
+namespace Kalmyk\Queue\Client\Command;
 
-use \Toa\Queue\Client;
+use \Kalmyk\Queue\Client;
 
-class Publish extends \Toa\Queue\Client\QueueBaseCommand
+class Publish extends \Kalmyk\Queue\Client\QueueBaseCommand
 {
     public function __construct($queueId, $chanel = '')
     {

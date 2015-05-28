@@ -1,9 +1,9 @@
 {
-    "name": "toa/queue",
-    "description": "queue",
+    "name": "kalmyk/queue",
+    "description": "mq",
     "autoload": {
         "psr-4": {
-            "Toa\\": "src",
+            "Kalmyk\\": "src",
             "QueueTests\\": "tests"
         }
     },

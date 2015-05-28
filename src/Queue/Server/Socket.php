@@ -1,11 +1,11 @@
 <?php
 
-namespace Toa\Queue\Server;
+namespace Kalmyk\Queue\Server;
 
 use React\Socket\ServerInterface;
 use React\Socket\ConnectionInterface;
-use Toa\Queue\Server\Broker;
-use Toa\Queue\StreamParser;
+use Kalmyk\Queue\Server\Broker;
+use Kalmyk\Queue\StreamParser;
 
 class Socket
 {

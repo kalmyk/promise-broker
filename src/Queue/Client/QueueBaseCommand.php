@@ -1,10 +1,10 @@
 <?php
 
-namespace Toa\Queue\Client;
+namespace Kalmyk\Queue\Client;
 
 use \React\Promise\Deferred;
 
-class QueueBaseCommand implements \Toa\Queue\QueueConst
+class QueueBaseCommand implements \Kalmyk\Queue\QueueConst
 {
     protected $command = NULL;
     

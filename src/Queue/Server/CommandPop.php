@@ -1,6 +1,6 @@
 <?php
 
-namespace Toa\Queue\Server;
+namespace Kalmyk\Queue\Server;
 
 class CommandPop extends CommandDeferred
 {
@@ -9,5 +9,7 @@ class CommandPop extends CommandDeferred
         $this->client->addPopState();
         $broker->dResolve($this, NULL);
         $broker->checkWaitTask($this->client);
+        
+        $broker->confirmRepl($this);
     }
 }

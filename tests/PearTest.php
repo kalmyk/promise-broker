@@ -1,7 +1,7 @@
 <?php
 
-use \Toa\Queue\StreamParser;
-use \Toa\Queue\Server\PromiseBroker;
+use \Kalmyk\Queue\StreamParser;
+use \Kalmyk\Queue\Server\PromiseBroker;
 
 class BrokerTest extends \QueueTests\BrokerTestBase
 {
@@ -29,7 +29,7 @@ class BrokerTest extends \QueueTests\BrokerTestBase
         $worker_calls = 0;
         $arrived_data = NULL;
 
-        $this->worker->subscribe('customer')->then(
+        $this->client->subscribe('customer')->then(
             function ($response) use (&$result_sub)
             {
                 $result_sub = 'done';
@@ -45,12 +45,12 @@ class BrokerTest extends \QueueTests\BrokerTestBase
                 $task->resolve('customer.read.result');
             }
         );
-        $this->worker->pull();
+        $this->client->pull();
         $this->flushStreams();
         
         $data = array('data1' => 1, 'data2' => 2);
         $result_call = NULL;
-        $this->client->call('customer', $data)->then(
+        $this->worker->call('customer', $data)->then(
             function ($response) use (&$result_call)
             {
                 $result_call = $response;
@@ -63,7 +63,7 @@ class BrokerTest extends \QueueTests\BrokerTestBase
         $this->assertEquals($data, $arrived_data);
 
         $result_unsub = NULL;
-        $this->worker->unSub('customer')->then(
+        $this->client->unSub('customer')->then(
             function ($response) use (&$result_unsub)
             {
                 $result_unsub = 'done';

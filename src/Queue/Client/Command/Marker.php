@@ -1,10 +1,10 @@
 <?php
 
-namespace Toa\Queue\Client\Command;
+namespace Kalmyk\Queue\Client\Command;
 
-use \Toa\Queue\Client;
+use \Kalmyk\Queue\Client;
 
-class Marker extends \Toa\Queue\Client\QueueBaseCommand
+class Marker extends \Kalmyk\Queue\Client\QueueBaseCommand
 {
     public function __construct($queueId, $segment=NULL, $newSegment=NULL, $generator=NULL)
     {
