@@ -117,6 +117,7 @@ class QueueClient implements \Kalmyk\Queue\QueueConst
         );
     }
 
+    // reset message id generator
     function marker($queueId, $prefix=NULL, $newPrefix=NULL, $newSegment=NULL)
     {
         return $this->send(
@@ -125,6 +126,7 @@ class QueueClient implements \Kalmyk\Queue\QueueConst
         );
     }
 
+    // trace all messages in the queue
     function trace($queueId, $quorum, $chanel = '')
     {
         return $this->send(

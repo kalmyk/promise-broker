@@ -51,7 +51,7 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
     private $stack = NULL; // current command stack
     private $id = '';
 
-    public function __construct($id)
+    public function __construct($id = '')
     {
         $this->id = $id;
     }

@@ -23,6 +23,7 @@ class BrokerTest extends \QueueTests\BrokerTestBase
 
     function testPearRemoteCall()
     {
+        $this->markTestSkipped('multy broker is not ready.');
         $this->flushStreams();
 
         $result_sub = NULL;

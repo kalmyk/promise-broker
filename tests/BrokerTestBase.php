@@ -31,7 +31,7 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
                 $this->assertTrue(is_array($data), 'protocol error, array of strings expected!');
                 foreach ($data as $line)
                 {
-echo "$cliName > $srvName $line\n";
+//echo "$cliName > $srvName $line\n";
 //file_put_contents('/tmp/q.log', "$cliName > $srvName $line\n", FILE_APPEND);
                     $this->assertTrue(is_string($line), 'protocol error, string line expected!');
                 }
@@ -53,7 +53,7 @@ echo "$cliName > $srvName $line\n";
                 $this->assertTrue(is_array($data), 'protocol error, array of strings expected!');
                 foreach ($data as $line)
                 {
-echo "$srvName > $cliName $line\n";
+//echo "$srvName > $cliName $line\n";
 //file_put_contents('/tmp/q.log', "$cliName < $srvName $line\n", FILE_APPEND);
                     $this->assertTrue(is_string($line), 'protocol error, string line expected!');
                 }
@@ -87,7 +87,7 @@ echo "$srvName > $cliName $line\n";
                 $this->assertTrue(is_array($data), 'protocol error, array of strings expected!');
                 foreach ($data as $line)
                 {
-echo "Slave > Master $line\n";
+//echo "Slave > Master $line\n";
                     $this->assertTrue(is_string($line), 'protocol error, string line expected!');
                 }
                 $master->process($data, $clientState);
@@ -108,7 +108,7 @@ echo "Slave > Master $line\n";
                 $this->assertTrue(is_array($data));
                 foreach ($data as $line)
                 {
-echo "Master > Slave $line\n";
+//echo "Master > Slave $line\n";
                     $this->assertTrue(is_string($line), 'protocol error');
                 }
                 $slave->process($data, $cli);

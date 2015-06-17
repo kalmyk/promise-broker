@@ -9,7 +9,7 @@ class QueueTask implements \Kalmyk\Queue\QueueConst
     private $data = NULL;
     private $chanel = NULL;
     private $isFinished = false;
-    
+
     public function __construct($taskResponseCallback, $request, $data, $chanel)
     {
         $this->taskResponseCallback = $taskResponseCallback;
