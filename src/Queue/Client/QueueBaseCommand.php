@@ -7,12 +7,12 @@ use \React\Promise\Deferred;
 class QueueBaseCommand implements \Kalmyk\Queue\QueueConst
 {
     protected $command = NULL;
-    
+
     public function __construct($command)
     {
         $this->command = $command;
     }
-    
+
     public function then(QueueBaseCommand $atResolve = NULL, QueueBaseCommand $atReject = NULL, QueueBaseCommand $atProgress = NULL)
     {
         if ($atResolve)
@@ -22,7 +22,7 @@ class QueueBaseCommand implements \Kalmyk\Queue\QueueConst
         if ($atProgress)
             $this->command[self::PKG_STACK][self::RESP_EMIT] = $atProgress->getCommandData(NULL,NULL);  // TODO: move recursion to send
     }
-    
+
     public function getCommandData()
     {
         return $this->command;

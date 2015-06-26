@@ -1,6 +1,6 @@
 <?php
 
-namespace Kalmyk;
+namespace QueueDemo;
 
 use \Kalmyk\Queue\Client\QueueClient;
 
@@ -46,6 +46,9 @@ class ClientApp
 
     public function run_test_sub($count)
     {
+        $this->qCli->push('twitter', "data $count");
+
+
         $this->qCli->call('job', "data $count")->then(
             function ($response) use ($count)
             {

@@ -12,7 +12,7 @@ class CommandBaseSub extends CommandDeferred
         parent::__construct($header, $client);
         $this->queue = isset($header[self::PKG_QUEUE]) ? $header[self::PKG_QUEUE] : '';
     }
-    
+
     public function pushStack($header, $rawData)
     {
         $this->pushStack[] = array($header, $rawData);

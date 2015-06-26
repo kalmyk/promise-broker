@@ -21,10 +21,12 @@ class QueueStorage implements StorageInterface
         $s = $this->db->prepare(
 "insert into msg_{$shard_id} values (
 )");
-        $s->bindValue(':mqid'                  ,array_get($attr,'mqid'));
+        $s->bindValue(':mqid'
+            ,array_get($attr,'mqid')
+        );
         $s->execute();
     }
-    
+
     function func_select($shard_id, $attr)
     {
         $s = "SELECT ".
@@ -79,29 +81,26 @@ class QueueStorage implements StorageInterface
 // CREATE TABLE t(x INTEGER PRIMARY KEY ASC, y, z);
 // SELECT rowid, x FROM t; to check
 
-    public function createTables($stream)
+    public function createTables($queueId)
     {
         $this->db->exec(
-            "CREATE TABLE IF NOT EXISTS pg ("
-           ." `id INTEGER PRIMARY KEY` autoincrement," 
-           ." `id_segment` int,"    /* date */
-           ." `id_sequince` int,"   /* mono sequence in segment */
-           ." `queue` varchar(128),"
+            "CREATE TABLE IF NOT EXISTS pg_{$queueId} ("
+           ." `page_id` int,"       /* date */
            ." `msg_count` int,"
            ." `create_date` datetime,"
-           ." PRIMARY KEY (`id_segment`, `id_id`));"
+           ." PRIMARY KEY (`page_id`));"
         );
 
         $this->db->exec(
-            "CREATE TABLE IF NOT EXISTS mq ("
+            "CREATE TABLE IF NOT EXISTS mq_{$queueId} ("
            ." `page_id` INTEGER,"
            ." `row_pos` int,"
            ." `custom_id` varchar(64),"
-           ." `parent_id_segment` int,"
-           ." `parent_id_id` int,"
+           ." `parent_page_id` int,"
+           ." `parent_row_pos` int,"
            ." `msg_head` TEXT,"
            ." `msg_body` TEXT,"
-           ." PRIMARY KEY (`id_segment`, `id_id`));"
+           ." PRIMARY KEY (`page_id`, `row_pos`));"
         );
         return true;
     }

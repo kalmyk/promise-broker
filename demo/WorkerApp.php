@@ -1,6 +1,6 @@
 <?php
 
-namespace Kalmyk;
+namespace QueueDemo;
 
 use \Kalmyk\Queue\Client\QueueClient;
 
