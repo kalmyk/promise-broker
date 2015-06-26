@@ -1,0 +1,92 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    <title>WebSocket test</title>
+    <style type="text/css" media="all">
+
+    </style>
+    <script type="text/javascript" src="app.js"> </script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"> </script>
+</head>
+<body onload="initApp()">
+<div id="status">Disconnected</div>
+<input id="host" type="text" value="localhost/wss2/">
+<br>
+<button id="connect">Connect</button>
+<button id="disconnect">Disconnect</button>
+<br>
+<textarea id="log" name="log" cols="30" rows="30"></textarea>
+
+<script type="text/javascript" charset="utf-8">
+
+var connection = false;
+// 0 - not connected
+// 1 - connected
+var status = 0;
+
+function connect () {
+    if (status === 1) {
+        disconnect();
+    }
+
+    var connectionsCount = parseInt($("#connections-count").val(), 10);
+
+    try {
+        connection = new WebSocket("ws://" + $("#host").val());
+
+        websocket.onopen = function(evt) { onOpen(evt) };
+        websocket.onclose = function(evt) { onClose(evt) };
+        websocket.onmessage = function(evt) { onMessage(evt) };
+        websocket.onerror = function(evt) { onError(evt) };
+
+    } catch (error) {
+        $("#status").text("Error: " + error.message);
+    }
+}
+
+function log (text) {
+    var logElement = $("#log");
+    logElement.text(logElement.text());
+}
+
+function clearLog() {
+    var logElement = $("#log");
+    logElement.text("");
+}
+
+function onOpen (event) {
+    status = 1;
+    $("#status").text("Connected");
+    log("--- Connected");
+}
+
+function onClose(event) {
+    status = 0;
+
+    log("--- Disconnected");
+    $("#status").text("Disconnected");
+}
+
+function disconnect () {
+    if (status === 0) {
+        return;
+    }
+
+    connection.close();
+}
+
+function initApp() {
+    $("#connect").click(function (event) {
+        event.preventDefault();
+        connect();
+    });
+
+    $("#disconnect").click(function (event) {
+        event.preventDefault();
+        disconnect();
+    });
+}
+</script>
+</body>
+</html>

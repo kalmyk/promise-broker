@@ -14,7 +14,7 @@ $client = new \Kalmyk\Queue\Client\QueueClient();
     function ($response) use ($client)
     {
         $socket = new \Kalmyk\Queue\Client\Socket($response, $client);
-        $app = new \QueueDemo\ClientApp($client, $response);
+        $app = new \Kalmyk\Storage\ClientApp($client, $response);
         $app->run();
     },
     function ($reason)

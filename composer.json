@@ -11,7 +11,9 @@
     "require": {
         "php": ">=5.4.0",
         "react/promise": "~2.0",
+        "fennb/phirehose": "*",
         "evenement/evenement": "~2.0",
+        "cboden/ratchet": "*",
         "react/socket": "*",
         "react/socket-client": "*"
     }

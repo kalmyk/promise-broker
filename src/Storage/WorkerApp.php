@@ -1,6 +1,6 @@
 <?php
 
-namespace QueueDemo;
+namespace Kalmyk\Storage;
 
 use \Kalmyk\Queue\Client\QueueClient;
 
@@ -24,7 +24,15 @@ class WorkerApp
                 $task->resolve(true);
             }
         );
+
+        $this->qCli->trace('twitter', 1)->then(NULL,NULL,
+            function ($task)
+            {
+                echo "trace {$task->getData()}\n";
+                $task->resolve(true);
+            }
+        );
+
         $this->qCli->pull();
     }
-
 }

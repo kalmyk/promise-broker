@@ -1,6 +1,6 @@
 <?php
 
-namespace QueueDemo;
+namespace Kalmyk\Storage;
 
 use \Kalmyk\Queue\Client\QueueClient;
 
@@ -59,12 +59,12 @@ class ClientApp
                     $this->socket->close();
             }
         );
-
     }
-    
+
     public function run()
     {
-        for ($i=0; $i<2; $i++)
+//        for ($i=0; $i<2; $i++)
+
             $this->run_test_sub(10);
 
 //        $this->run_test_echo();
