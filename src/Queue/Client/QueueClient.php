@@ -4,19 +4,19 @@ namespace Kalmyk\Queue\Client;
 
 use \React\Promise\Deferred;
 
-class QueueClient implements \Kalmyk\Queue\QueueConst
+class QueueClient implements \Kalmyk\Queue\QueueConst, QueueClientInterface
 {
     private $onMessage = NULL;
     private $commandId = 0;
     private $cmdList = array();
     private $simultaneousTaskLimit = 0;
     private $tasksRequested = 0;
-    
-    function onMessage(callable $onMessage)
+
+    public function setOnMessage(callable $onMessage)
     {
         if (isset($this->onMessage))
             throw new \Exception('unable to redeclare message callback');
-        
+
         $this->onMessage = $onMessage;
     }
 
@@ -261,5 +261,11 @@ class QueueClient implements \Kalmyk\Queue\QueueConst
 //print_r($data);
             // unknown command ID arrived, nothing to do, could write PHP error?
         }
+    }
+
+    public function close()
+    {
+        //TODO: implement close connection
+        echo "close connection\n";
     }
 }

@@ -27,7 +27,7 @@ class ClientState implements \Kalmyk\Queue\QueueConst
         $this->clientId = $broker->attachClient($this);
     }
 
-    function onMessage(callable $onMessage)
+    function setOnMessage(callable $onMessage)
     {
         $this->onMessage = $onMessage;
     }

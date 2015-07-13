@@ -27,6 +27,8 @@ class QueueTask implements \Kalmyk\Queue\QueueConst
         return isset($this->cmd[self::PKG_CID]);
     }
 
+    // SETTLE command, thet send result from worker to queue,
+    // could find destination cliend by client id and request id
     public function getClientId()
     {
         return $this->cmd[self::PKG_CLIENT];

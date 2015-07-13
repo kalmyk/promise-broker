@@ -15,14 +15,13 @@ use React\Socket\Server as ReactServer;
     $dns = $dnsResolverFactory->createCached('8.8.8.8', $loop);
 
     $connector = new React\SocketClient\Connector($loop, $dns);
-    $client = new \Kalmyk\Queue\Client\QueueClient();
+    $gate = new \Kalmyk\WebSocket\QueueGate();
 
     \React\Promise\Resolve($connector->createSocketForAddress('127.0.0.1', 8081))->then(
-        function ($response) use ($client, $webSocket, $loop)
+        function ($response) use ($gate, $webSocket, $loop)
         {
-            $socket = new \Kalmyk\Queue\Client\Socket($response, $client);
-            $app = new \Kalmyk\WebSocket\WorkerApp($client, $response);
-            $app->run();
+            $socket = new \Kalmyk\Queue\Client\Socket($response, $gate);
+            $app = new \Kalmyk\WebSocket\WorkerApp($gate, $response);
 
             $server = new IoServer(
                 new HttpServer(

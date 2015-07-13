@@ -48,10 +48,10 @@ class BrokerTest extends \QueueTests\BrokerTestBase
 
             $this->assertEquals(0, $this->worker->getPendingCmdCount(), 'worker stack not empty');
         }
-        
+
 //        $this->client->disconnect();
 //        $this->worker->disconnect();
-        
+
 //        $this->server->checkEmpty();
     }
 
@@ -66,7 +66,6 @@ class BrokerTest extends \QueueTests\BrokerTestBase
                 $result_echo = $response;
             }
         );
-
         $this->flushStreams();
 
         $this->assertEquals($data, $result_echo, 'echo should return the send data');

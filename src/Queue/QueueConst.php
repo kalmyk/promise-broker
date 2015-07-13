@@ -18,7 +18,10 @@ interface QueueConst
     // header KEEP/READ stuff
     const PKG_QUORUM        = 'u';    // READ quorum, count of workers to start processing 
     // header SETTLE stuff
-    const PKG_CLIENT        = 'C';    // filled by queue, ID of the client who sent CALL or KEEP, SETTLE will be delivered to it
+    const PKG_CLIENT        = 'C';    // CLIENT pack identifies requester that need response/settle
+    const PKG_CLIENT_NUMBER = 'N';    // filled by queue, ID of the client who sent CALL or KEEP, SETTLE will be delivered to it
+    const PKG_CLIENT_THEME  = 'T';    // client ID that generates on client side, this provides ability to subscribe to queue several times
+    const PKG_CLIENT_USER   = 'U';    // ID correspond to user id that generates the request
     const PKG_CID           = 'O';    // origin requestId, 
     const PKG_RESPONSE      = 'R';    // SETTLE stuff, response style to delivery, lookup to RESP_*
 

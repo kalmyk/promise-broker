@@ -311,16 +311,14 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
 
         case self::CMD_PEAR:    return new CommandPear      ($cmd, $client);
 
-        case 'login' :
-            break;
-
         default:
             throw new \Exception("function not found ".$cmd[self::PKG_CMD]);
         }
     }
 
-    public function process($cmd, $client)
+    public function process($cmd, ClientState $client)
     {
+// print_r($cmd);
         $this->stack = array(
             array(
                 $client,

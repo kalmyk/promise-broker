@@ -8,12 +8,12 @@ class StreamParser
     private $dataToRead = 0;
     private $lineToRead = 0;
     private $lineFound = array();
-    
+
     public function testBuffer()
     {
         return $this->inBuffer;
     }
-    
+
     public function parse($data)
     {
 //echo ">->->$data<-<-<\n";

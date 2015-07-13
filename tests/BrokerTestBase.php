@@ -38,7 +38,7 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
                 $server->process($data, $clientState);
             }
         );
-        $clientState->onMessage(
+        $clientState->setOnMessage(
             function ($message) use ($srvSocket)
             {
                 $srvSocket->send($message);
@@ -60,7 +60,7 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
                 $cli->receive($data);
             }
         );
-        $cli->onMessage(
+        $cli->setOnMessage(
             function ($data) use ($cliSocket)
             {
                 $cliSocket->send($data);
@@ -93,7 +93,7 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
                 $master->process($data, $clientState);
             }
         );
-        $clientState->onMessage(
+        $clientState->setOnMessage(
             function ($message) use ($srvSocket)
             {
                 $srvSocket->send($message);
@@ -114,7 +114,7 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
                 $slave->process($data, $cli);
             }
         );
-        $cli->onMessage(
+        $cli->setOnMessage(
             function ($data) use ($cliSocket)
             {
                 $cliSocket->send($data);

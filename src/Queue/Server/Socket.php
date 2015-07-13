@@ -24,7 +24,7 @@ class Socket
 
         $this->broker->attachClient($client);
 
-        $client->onMessage(
+        $client->setOnMessage(
             function($message, $data) use ($parser, $connection)
             {
                 $connection->write(

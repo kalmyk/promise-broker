@@ -7,17 +7,17 @@ use Evenement\EventEmitter;
 
 class Socket
 {
-    public function __construct(EventEmitter $stream, $client)
+    public function __construct(EventEmitter $stream, QueueClientInterface $client)
     {
         $parser = new StreamParser();
-        
-        $client->onMessage(
+
+        $client->setOnMessage(
             function ($message, $data) use ($stream, $parser)
             {
                 $stream->write($parser->serialize($message, $data));
             }
         );
-        
+
         $stream->on('data',
             function ($data) use ($parser, $client)
             {

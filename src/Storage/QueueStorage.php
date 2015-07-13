@@ -5,15 +5,10 @@ namespace Kalmyk\Worker;
 class QueueStorage implements StorageInterface
 {
     private $db = NULL;
-    private $qualifier = NULL;
-    private $shardId = NULL;
 
-    function __construct($qualifier, $shardId)
+    function __construct($db)
     {
-        $this->qualifier = $qualifier;
-        $this->shardId = $shardId;
-
-///        $this->db = new SQLite3("{$Config->data_folder}/$instance_name.msg.sqlite");
+        $this->db = $db; //new SQLite3("{$Config->data_folder}/$instance_name.msg.sqlite");
     }
 
     function func_set_rec($shard_id, $attr)

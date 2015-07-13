@@ -41,6 +41,14 @@ var QueueClient = function()
         );
     }
 
+    // echo the data
+    self.echo  = function (data)
+    {
+        return self.send(
+            new QueueBaseCommand({'^':'ECHO'})
+        );
+    }
+
     self.send = function(obj, data)
     {
         self.commandId++;

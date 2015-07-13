@@ -73,10 +73,20 @@
     output.appendChild(pre);
   }
 
+  function doEcho()
+  {
+    q.echo('twitter').then(function (data) {writeToScreen('ECHO!');} );
+  }
+
   window.addEventListener("load", init, false);
+// setInterval(function () {document.getElementById("myButtonId").click();}, 1000);
 
 </script>
 
 <h2>WebSocket Test</h2>
+
+<FORM>
+<INPUT type="button" value="Echo" name="button_echo" onClick="return doEcho()">
+</FORM>
 
 <div id="output"></div>
