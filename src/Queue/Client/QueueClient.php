@@ -229,7 +229,11 @@ class QueueClient implements \Kalmyk\Queue\QueueConst, QueueClientInterface
         case self::RESP_EMIT:
             if (isset($response[self::PKG_CLIENT]))
             {
-                $task = new QueueTask(array($this, 'sendTaskResponse'), $response, $data, $response[self::PKG_CHANEL]);
+                $task = new QueueTask(
+                    array($this, 'sendTaskResponse'),
+                    $response,
+                    $data
+                );
                 $deferred->progress($task);
                 $this->checkPopTask(true);
             }

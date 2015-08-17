@@ -7,10 +7,9 @@ class QueueTask implements \Kalmyk\Queue\QueueConst
     private $taskResponseCallback = NULL;
     private $cmd = NULL;            // the request content array
     private $data = NULL;
-    private $chanel = NULL;
     private $isFinished = false;
 
-    public function __construct($taskResponseCallback, $request, $data, $chanel)
+    public function __construct($taskResponseCallback, $request, $data)
     {
         $this->taskResponseCallback = $taskResponseCallback;
         $this->cmd = $request;
@@ -27,7 +26,7 @@ class QueueTask implements \Kalmyk\Queue\QueueConst
         return isset($this->cmd[self::PKG_CID]);
     }
 
-    // SETTLE command, thet send result from worker to queue,
+    // SETTLE command, that sends result from worker to queue,
     // could find destination cliend by client id and request id
     public function getClientId()
     {

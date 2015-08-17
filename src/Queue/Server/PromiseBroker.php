@@ -113,7 +113,6 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
         $this->wSub[$subD->queue][$subD->chanel][$subD->client->getId()] = $subD;
 
         $subD->client->addSubscription($subD);
-        $subD->enable();
         $this->checkWaitTask($subD->client);
 
         $this->confirmRepl($subD);

@@ -25,13 +25,5 @@ class CommandBaseSub extends CommandDeferred
         else
             return array_shift($this->pushStack);
     }
-    
-    public function enable()
-    {
-    }
-
-    public function disable()
-    {
-    }
 }
 

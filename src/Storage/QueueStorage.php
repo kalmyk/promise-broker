@@ -11,14 +11,32 @@ class QueueStorage implements StorageInterface
         $this->db = $db; //new SQLite3("{$Config->data_folder}/$instance_name.msg.sqlite");
     }
 
-    function func_set_rec($shard_id, $attr)
+    function funcAddMsg(
+        $queue,
+        $page_date,
+        $page_id,
+        $row_pos,
+        $parent_queue,
+        $parent_page_date,
+        $parent_page_id,
+        $parent_row_pos,
+        $custom_id,
+        $msg_head,
+        $msg_body
+    )
     {
-        $s = $this->db->prepare(
-"insert into msg_{$shard_id} values (
-)");
-        $s->bindValue(':mqid'
-            ,array_get($attr,'mqid')
-        );
+        $s = $this->db->prepare("insert into msg values (?,?,?,?,?,?,?,?,?,?,?)");
+        $s->bindParam( 1, $queue,            SQLITE3_INTEGER);
+        $s->bindParam( 2, $page_date,        SQLITE3_INTEGER);
+        $s->bindParam( 3, $page_id,          SQLITE3_INTEGER);
+        $s->bindParam( 4, $row_pos,          SQLITE3_INTEGER);
+        $s->bindParam( 5, $parent_queue,     SQLITE3_INTEGER);
+        $s->bindParam( 6, $parent_page_date, SQLITE3_INTEGER);
+        $s->bindParam( 7, $parent_page_id,   SQLITE3_INTEGER);
+        $s->bindParam( 8, $parent_row_pos,   SQLITE3_INTEGER);
+        $s->bindParam( 9, $custom_id,        SQLITE3_TEXT);
+        $s->bindParam(10, $msg_head,         SQLITE3_TEXT);
+        $s->bindParam(11, $msg_body,         SQLITE3_TEXT);
         $s->execute();
     }
 
@@ -38,64 +56,68 @@ class QueueStorage implements StorageInterface
         }
         return $res;
     }
-    
-    function set($header, $data)
+
+    private function funcName($data)
     {
-        switch ($funcname)
+        if (isset($data['funcName']))
+            return $data['funcName'];
+        else
+            throw new \Exception("Function name not found in message body");
+    }
+
+    function process($task)
+    {
+        try
         {
-            case 'set_rec':
-                return $this->func_set_rec($shard_id, $attr);
-            case 'clean':
-                return $this->func_clean($shard_id, $attr);
-            default:
-                $result = "function not found $funcname ";
-                echo $result;
-                print_r($attr);
-                return $result;
+            $data = $task->getData();
+            $funcName = $this->funcName($data);
+            switch ($funcName)
+            {
+                case 'addMsg':
+                    return $this->funcAddMsg();
+                case 'clean':
+                    return $this->func_clean($shard_id, $attr);
+                default:
+                    throw new \Exception("Unknown function $funcName");
+            }
+        }
+        catch (\Exception $e)
+        {
+            $task->reject($e);
         }
     }
-    
-    function get($funcname, $shard_id, $attr)
-    {
-        switch ( $funcname )
-        {
-            case 'count':
-                echo "count processed shard:$shard_id\n";
-                return $this->db->querySingle("select count(*) from msg_{$shard_id}");
-//                return $this->db->query("delete from msg_{$shard_id}");
-            case 'select':
-                return $this->func_select($shard_id, $attr);
-            default:
-                echo "unknown command $funcname:";
-                print_r($attr);
-                return NULL;
-        }
-    }
-    
+
 // this will create table with ROWID=PRIMARY KEY
 // CREATE TABLE t(x INTEGER PRIMARY KEY ASC, y, z);
 // SELECT rowid, x FROM t; to check
 
-    public function createTables($queueId)
+    public function createTables()
     {
+// it is required to have link message to another in another queue
         $this->db->exec(
-            "CREATE TABLE IF NOT EXISTS pg_{$queueId} ("
-           ." `page_id` int,"       /* date */
-           ." `msg_count` int,"
+            "CREATE TABLE IF NOT EXISTS qpage ("
+           ." `queue` int,"
+           ." `page_date` int,"
+           ." `page_id` int,"
+//           ." `user_stream` int,"  it is good to recalculate stream on reload
            ." `create_date` datetime,"
-           ." PRIMARY KEY (`page_id`));"
+           ." PRIMARY KEY (`page_date`, `page_id`, `queue`));"
         );
 
         $this->db->exec(
-            "CREATE TABLE IF NOT EXISTS mq_{$queueId} ("
-           ." `page_id` INTEGER,"
+            "CREATE TABLE IF NOT EXISTS msg ("
+           ." `queue` int,"
+           ." `page_date` int,"
+           ." `page_id` int,"
            ." `row_pos` int,"
-           ." `custom_id` varchar(64),"
+           ." `parent_queue` int,"
+           ." `parent_page_date` int,"
            ." `parent_page_id` int,"
            ." `parent_row_pos` int,"
+           ." `custom_id` varchar(64),"
            ." `msg_head` TEXT,"
            ." `msg_body` TEXT,"
-           ." PRIMARY KEY (`page_id`, `row_pos`));"
+           ." PRIMARY KEY (`page_date`, `page_id`, `queue`, `row_pos`));"
         );
         return true;
     }
