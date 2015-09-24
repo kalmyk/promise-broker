@@ -1,8 +1,8 @@
 <?php
 
-namespace Kalmyk\Queue\Client;
+namespace Kalmyk\Queue;
 
-class QueueTask implements \Kalmyk\Queue\QueueConst
+class QueueTask implements QueueConst
 {
     private $taskResponseCallback = NULL;
     private $cmd = NULL;            // the request content array

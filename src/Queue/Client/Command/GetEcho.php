@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Client\Command;
 
-class GetEcho extends \Kalmyk\Queue\Client\QueueBaseCommand
+class GetEcho extends \Kalmyk\Queue\QueueCommandBase
 {
     public function __construct()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Kalmyk\Queue\Client;
+namespace Kalmyk\Queue;
 
 interface QueueClientInterface
 {

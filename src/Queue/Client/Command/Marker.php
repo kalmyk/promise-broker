@@ -4,7 +4,7 @@ namespace Kalmyk\Queue\Client\Command;
 
 use \Kalmyk\Queue\Client;
 
-class Marker extends \Kalmyk\Queue\Client\QueueBaseCommand
+class Marker extends \Kalmyk\Queue\QueueCommandBase
 {
     public function __construct($queueId, $segment=NULL, $newSegment=NULL, $generator=NULL)
     {

@@ -4,7 +4,7 @@ namespace Kalmyk\Queue\Client\Command;
 
 use \Kalmyk\Queue\Client;
 
-class Trace extends \Kalmyk\Queue\Client\QueueBaseCommand
+class Trace extends \Kalmyk\Queue\QueueCommandBase
 {
     public function __construct($queueId, $quorum, $chanel = '')
     {

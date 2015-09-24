@@ -1,10 +1,10 @@
 <?php
 
-namespace Kalmyk\Queue\Client;
+namespace Kalmyk\Queue;
 
 use \React\Promise\Deferred;
 
-class QueueBaseCommand implements \Kalmyk\Queue\QueueConst
+class QueueCommandBase implements QueueConst
 {
     protected $command = NULL;
 
@@ -13,7 +13,7 @@ class QueueBaseCommand implements \Kalmyk\Queue\QueueConst
         $this->command = $command;
     }
 
-    public function then(QueueBaseCommand $atResolve = NULL, QueueBaseCommand $atReject = NULL, QueueBaseCommand $atProgress = NULL)
+    public function then(QueueCommandBase $atResolve = NULL, QueueCommandBase $atReject = NULL, QueueCommandBase $atProgress = NULL)
     {
         if ($atResolve)
             $this->command[self::PKG_STACK][self::RESP_OK] = $atResolve->getCommandData(NULL,NULL);

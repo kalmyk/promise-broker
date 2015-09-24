@@ -4,7 +4,7 @@ namespace Kalmyk\Queue\Client\Command;
 
 use \Kalmyk\Queue\Client;
 
-class Subscribe extends \Kalmyk\Queue\Client\QueueBaseCommand
+class Subscribe extends \Kalmyk\Queue\QueueCommandBase
 {
     public function __construct($queueId, $chanel = '')
     {
