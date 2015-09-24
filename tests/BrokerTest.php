@@ -326,80 +326,6 @@ class BrokerTest extends \QueueTests\BrokerTestBase
         $this->worker->stopPull();
     }
 
-    function testPublishNoListener()
-    {
-        $result_call = 'not delivered';
-        $error_call = NULL;
-        $worker_state = '';
-        $this->client->publish('customer', 'msg')->then(
-            function ($response) use (&$result_call)
-            {
-                $result_call = $response;
-            },
-            function ($reason) use (&$error_call)
-            {
-                $error_call = $reason;
-            }
-        );
-        $this->flushStreams();
-        $this->assertEquals(0, $result_call, 'no clients to delivery');
-        $this->assertEquals(NULL, $error_call);
-    }
-
-    function testPublishToClient()
-    {
-        $result_call = NULL;
-        $worker_state = '';
-        $this->worker->subscribe('customer')->then(
-            NULL,
-            NULL,
-            function ($task) use (&$worker_state)
-            {
-                $worker_state .= $task->getData();
-                $task->resolve(NULL);
-            }
-        );
-        $this->worker->pull();
-        
-        $this->client->subscribe('customer')->then(
-            NULL,
-            NULL,
-            function ($task) use (&$worker_state)
-            {
-                $worker_state .= $task->getData();
-                $task->resolve(NULL);
-            }
-        );
-        $this->client->pull();
-        $this->flushStreams();
-        
-        $this->client->publish('customer', 'msg')->then(
-            function ($response) use (&$result_call)
-            {
-                $result_call = $response;
-            }
-        );
-        $this->flushStreams();
-        $this->assertEquals(2, $result_call, 'two clients');
-        $this->assertEquals('msgmsg', $worker_state, 'two notifies');
-
-        $this->client->publish('customer', 'msg')->then(
-            function ($response) use (&$result_call)
-            {
-                $result_call = $response;
-            }
-        );
-        $this->flushStreams();
-
-        $this->assertEquals(2, $result_call, 'two clients');
-        $this->assertEquals('msgmsgmsgmsg', $worker_state, 'two notifies');
-
-        $this->worker->stopPull();
-        $this->client->stopPull();
-        $this->worker->unSub('customer');
-        $this->client->unSub('customer');
-    }
-
     function testMarker()
     {
         // error is returned if queue marker is not defined
@@ -626,42 +552,34 @@ class BrokerTest extends \QueueTests\BrokerTestBase
             function ($task) use (&$log)
             {
                 $task->resolve(true);
-                $log .= "\n".$task->getData();
+                $log .= " ".$task->getData();
             }
         );
-        $this->worker->subscribe('publish')->then(NULL,NULL,
+        $this->worker->subscribe('call')->then(NULL,NULL,
             function ($task) use (&$log)
             {
-                if (strpos($task->getData(), 'pub.'))
-                    $log .= "\n".$task->getData();
-                else
-                    $log .= "\n".$task->getData();
+                $log .= " ".$task->getData();
                 $task->resolve(true);
             }
         );
         $this->flushStreams();
-        
-        $this->client->publish('publish', 'pub.1');
-        $this->client->call('publish', 'call.value');
-        $this->client->publish('publish', 'pub.2');
+
+        $this->client->call('call', 'call.value');
         $this->client->push('push', 'push.1');
-        $this->client->publish('publish', 'pub.3');
         $this->client->push('push', 'push.2');
-        $this->client->publish('publish', 'pub.4');
         $this->client->push('push', 'push.3');
-        $this->client->publish('publish', 'pub.5');
         $this->flushStreams();
 
         $this->worker->pull();
         $this->flushStreams();
 
         $this->assertEquals(
-            "\npush.1\npush.2\npush.3\npub.1\npub.2\npub.3\npub.4\npub.5\ncall.value",
+            " push.1 push.2 push.3 call.value",
             $log,
-            'work order push/pub/call'
+            'work order push/call'
         );
 
-        $this->worker->unSub('publish');
+        $this->worker->unSub('call');
         $this->worker->unTrace('push');
         $this->worker->stopPull();
     }

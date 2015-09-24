@@ -29,18 +29,17 @@ interface QueueConst
 
     // header PKG_CMD tag content   I immediate S stack, E with emit
     const CMD_ECHO      = 'ECHO';       // I  echo the message content
-    const CMD_SUB       = 'SUB';        // SE subscribe for call and publish messages
+    const CMD_SUB       = 'SUB';        // SE subscribe for call messages
     const CMD_UNSUB     = 'UNSUB';      // I  unsubscribe from call
     const CMD_TRACE     = 'TRACE';      // SE trace the PUSH messages
     const CMD_UNTRACE   = 'UNTRACE';    // I  do not trace messages any more
     const CMD_MARKER    = 'MARKER';     // IE setup PUSH messages marker
     const CMD_POP       = 'POP';        // I  worker ask for tasks on subscribed queues
     const CMD_UNPOP     = 'UNPOP';      // I  worker dont wait to do any tasks any more
-    const CMD_PUB       = 'PUB';        // S  notify message to all connected workers on Queue/Chanel, if no users connected the message disapears
     const CMD_CALL      = 'CALL';       // SE dispatch message to one free worker, and send the worker response to the client
     const CMD_PUSH      = 'PUSH';       // S  client asks send the message to all storages to keep, client receives the maker
-    const CMD_SETTLE    = 'SETTLE';     // I  worker response about message/task result (CALL/PUSH/PUB)
-    const CMD_STREAM    = '~';          // I  worker streaming request (PUB/CALL/PUSH)
+    const CMD_SETTLE    = 'SETTLE';     // I  worker response about message/task result (CALL/PUSH)
+    const CMD_STREAM    = '~';          // I  worker streaming request (CALL/PUSH)
 
     const CMD_PEAR      = 'PEAR';
 

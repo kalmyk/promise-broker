@@ -78,15 +78,7 @@ class QueueClient implements \Kalmyk\Queue\QueueConst, QueueClientInterface
             $attr
         );
     }
-    
-    function publish($queueId, $attr, $chanel = '')
-    {
-        return $this->send(
-            new Command\Publish($queueId, $chanel),
-            $attr
-        );
-    }
-    
+
     function push($queueId, $attr, $chanel = '')
     {
         return $this->send(
@@ -94,7 +86,7 @@ class QueueClient implements \Kalmyk\Queue\QueueConst, QueueClientInterface
             $attr
         );
     }
-    
+
     function subscribe($queueId, $chanel = '')
     {
         return $this->send(

@@ -294,7 +294,6 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
         case self::CMD_POP:     return new CommandPop       ($cmd, $client);
         case self::CMD_SETTLE:  return new CommandSettle    ($cmd, $client);
 
-        case self::CMD_PUB:     return new CommandPub       ($cmd, $client);
         case self::CMD_CALL:    return new CommandCall      ($cmd, $client);
         case self::CMD_PUSH:    return new CommandPush      ($cmd, $client);
 
