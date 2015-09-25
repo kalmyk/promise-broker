@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandUnPop extends CommandDeferred
+class DeferUnPop extends DeferBase
 {
     public function process($broker, $rawData)
     {

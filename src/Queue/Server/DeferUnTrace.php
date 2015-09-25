@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandUnSub extends CommandDeferred
+class DeferUnTrace extends DeferBase
 {
     public function process($broker, $rawData)
     {
@@ -11,7 +11,7 @@ class CommandUnSub extends CommandDeferred
         )
             return false;
 
-        $subD = $broker->getSub($queueId,$this->chanel,$this->client->getId());
+        $subD = $broker->getTrace($queueId,$this->chanel,$this->client->getId());
         if (!$subD)
         {
             $broker->dReject($this,
@@ -21,9 +21,9 @@ class CommandUnSub extends CommandDeferred
             return NULL;
         }
 
-        $broker->removeSub($this->client, $subD);
+        $broker->removeTrace($this->client, $subD);
 
-        $broker->dResolve($subD, NULL);   // response to subscribe command
-        $broker->dResolve($this, NULL);     // response to unsubscribe command
+        $broker->dResolve($subD, NULL);     // response to TRACE command
+        $broker->dResolve($this, NULL);     // response to UNTRACE command
     }
 }

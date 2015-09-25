@@ -120,7 +120,7 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
                 $cliSocket->send($data);
             }
         );
-        $cli->connect();
+//TODO:        $cli->connect();
         return $cli;
     }
 

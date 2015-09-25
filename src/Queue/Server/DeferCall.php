@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandCall extends CommandDeferred
+class DeferCall extends DeferBase
 {
     public $data;
 

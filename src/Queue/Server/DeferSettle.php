@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandSettle extends CommandDeferred
+class DeferSettle extends DeferBase
 {
     public function process($broker, $rawData)
     {

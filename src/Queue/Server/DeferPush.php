@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandPush extends CommandDeferred
+class DeferPush extends DeferBase
 {
     private $queueId = '';
     private $responseQuorum = 0;

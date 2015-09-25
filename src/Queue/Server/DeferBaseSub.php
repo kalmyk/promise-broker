@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandBaseSub extends CommandDeferred
+class DeferBaseSub extends DeferBase
 {
     public $queue = '';
     private $pushStack = array();

@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandTrace extends CommandBaseSub
+class DeferTrace extends DeferBaseSub
 {
     public $quorum = 1;
 

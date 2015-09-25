@@ -41,8 +41,6 @@ interface QueueConst
     const CMD_SETTLE    = 'SETTLE';     // I  worker response about message/task result (CALL/PUSH)
     const CMD_STREAM    = '~';          // I  worker streaming request (CALL/PUSH)
 
-    const CMD_PEAR      = 'PEAR';
-
     // header PKG_RESPONSE tag content
     const RESP_OK      = '+';
     const RESP_ERROR   = '!';

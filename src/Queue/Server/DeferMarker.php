@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandMarker extends CommandDeferred
+class DeferMarker extends DeferBase
 {
     private function pageResponseOk($broker, $queueId)
     {
@@ -20,7 +20,7 @@ class CommandMarker extends CommandDeferred
             !$this->checkHeader($broker, $queueId, self::PKG_QUEUE)
         )
             return false;
-        
+
         if (isset($this->header[self::PKG_SEGMENT])
          && isset($this->header[self::PKG_NEW_SEGMENT])
         )
@@ -47,7 +47,7 @@ class CommandMarker extends CommandDeferred
                 $broker->pager[$queueId][self::RESP_CURRENT_ID] = (int)$this->header[self::PKG_GEN_ID];
             else
                 $broker->pager[$queueId][self::RESP_CURRENT_ID] = 0;
-            
+
             $this->pageResponseOk($broker, $queueId);
         }
         else

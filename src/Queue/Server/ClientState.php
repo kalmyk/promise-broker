@@ -8,17 +8,15 @@ class ClientState implements \Kalmyk\Queue\QueueConst
     private $popState = 0;
     private $onMessage = NULL;
 
-//    public $pearServer = NULL;
-
     /**
         subscribtion commands
-            [$id] => CommandBaseSub
+            [scheme][$id] => DeferBaseSub
     */
     private $sub = array();
 
     /**
         subscribtion and trace commands in priority order
-            [$id] => CommandBaseSub
+            [scheme][$id] => DeferBaseSub
     */
     private $subAndTrace = array();
 

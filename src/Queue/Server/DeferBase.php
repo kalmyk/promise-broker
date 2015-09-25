@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandDeferred implements \Kalmyk\Queue\QueueConst
+class DeferBase implements \Kalmyk\Queue\QueueConst
 {
     public $client = NULL;
     protected $header = NULL;

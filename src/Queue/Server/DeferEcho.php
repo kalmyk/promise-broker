@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandEcho extends CommandDeferred
+class DeferEcho extends DeferBase
 {
     public function process($broker, $rawData)
     {

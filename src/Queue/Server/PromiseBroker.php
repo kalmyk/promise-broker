@@ -6,19 +6,19 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
 {
     /**
         Subscribed Workewrs for queues
-            [queueId][chanelId][clientId] => subD
+            [scheme][queueId][chanelId][clientId] => subD
     */
     private $wSub = array();
 
     /**
         storage chanel listeners
-            [queueId][chanelId][clientId] => subD
+            [scheme][queueId][chanelId][clientId] => subD
     */
     private $wTrace = array();
 
     /**
         generator
-            [queueId] => array(
+            [scheme][queueId] => array(
                 RESP_CURRENT_ID => INT
                 RESP_PREFIX => 'the page number'
                 RESP_SEGMENT => generator page
@@ -149,6 +149,7 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
 
     public function addTrace($subD)
     {
+    //TODO: [$subD->scheme]
         $this->wTrace[$subD->queue][$subD->chanel][$subD->client->getId()] = $subD;
         $subD->client->addTrace($subD);
     }
@@ -291,23 +292,21 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
     {
         switch ($cmd[self::PKG_CMD])
         {
-        case self::CMD_POP:     return new CommandPop       ($cmd, $client);
-        case self::CMD_SETTLE:  return new CommandSettle    ($cmd, $client);
+        case self::CMD_POP:     return new DeferPop       ($cmd, $client);
+        case self::CMD_SETTLE:  return new DeferSettle    ($cmd, $client);
 
-        case self::CMD_CALL:    return new CommandCall      ($cmd, $client);
-        case self::CMD_PUSH:    return new CommandPush      ($cmd, $client);
+        case self::CMD_CALL:    return new DeferCall      ($cmd, $client);
+        case self::CMD_PUSH:    return new DeferPush      ($cmd, $client);
 
-        case self::CMD_ECHO:    return new CommandEcho      ($cmd, $client);
+        case self::CMD_ECHO:    return new DeferEcho      ($cmd, $client);
 
-        case self::CMD_SUB:     return new CommandSub       ($cmd, $client);
-        case self::CMD_TRACE:   return new CommandTrace     ($cmd, $client);
+        case self::CMD_SUB:     return new DeferSub       ($cmd, $client);
+        case self::CMD_TRACE:   return new DeferTrace     ($cmd, $client);
 
-        case self::CMD_UNSUB:   return new CommandUnSub     ($cmd, $client);
-        case self::CMD_UNTRACE: return new CommandUnTrace   ($cmd, $client);
-        case self::CMD_UNPOP:   return new CommandUnPop     ($cmd, $client);
-        case self::CMD_MARKER:  return new CommandMarker    ($cmd, $client);
-
-        case self::CMD_PEAR:    return new CommandPear      ($cmd, $client);
+        case self::CMD_UNSUB:   return new DeferUnSub     ($cmd, $client);
+        case self::CMD_UNTRACE: return new DeferUnTrace   ($cmd, $client);
+        case self::CMD_UNPOP:   return new DeferUnPop     ($cmd, $client);
+        case self::CMD_MARKER:  return new DeferMarker    ($cmd, $client);
 
         default:
             throw new \Exception("function not found ".$cmd[self::PKG_CMD]);

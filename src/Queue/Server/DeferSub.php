@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Queue\Server;
 
-class CommandSub extends CommandBaseSub
+class DeferSub extends DeferBaseSub
 {
     public function process($broker, $rawData)
     {
@@ -23,6 +23,7 @@ class CommandSub extends CommandBaseSub
             return NULL;
         }
         $broker->addSub($this);
+//        $broker->sendToPear($this);
     }
 
     public function sendToClient($mode, $header, $rawData)
