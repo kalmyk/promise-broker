@@ -28,13 +28,14 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
     public $pager = array();
 
     /**
-        CALL commands that waits for free worker (not sent to worker)
-            [$queueId][chanelId][] = deferred
+        CALL commands that are waiting for the free worker
+            [scheme][$queueId][chanelId][] = deferred
     */
     private $qCall   = array();
 
     /**
         reqest has been sent to worker/writer, client is waiting for the SETTLE
+        CALL/PUSH
             [$clientId][$commandId] = deferred
     */
     private $qSettle = array();
@@ -114,7 +115,13 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
 
         $subD->client->addSubscription($subD);
         $this->checkWaitTask($subD->client);
-
+/*
+        if (remotes exists)
+        if (no remote registered)
+        $this->rSub[$subD->queue][$subD->chanel] = 
+            new Command\Subscrioption
+            send(command)
+*/
         $this->confirmRepl($subD);
     }
 

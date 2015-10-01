@@ -16,11 +16,11 @@ class QueueCommandBase implements QueueConst
     public function then(QueueCommandBase $atResolve = NULL, QueueCommandBase $atReject = NULL, QueueCommandBase $atProgress = NULL)
     {
         if ($atResolve)
-            $this->command[self::PKG_STACK][self::RESP_OK] = $atResolve->getCommandData(NULL,NULL);
+            $this->command[self::PKG_STACK][self::RESP_OK] = $atResolve->getCommandData();
         if ($atReject)
-            $this->command[self::PKG_STACK][self::RESP_ERROR] = $atReject->getCommandData(NULL,NULL);
+            $this->command[self::PKG_STACK][self::RESP_ERROR] = $atReject->getCommandData();
         if ($atProgress)
-            $this->command[self::PKG_STACK][self::RESP_EMIT] = $atProgress->getCommandData(NULL,NULL);  // TODO: move recursion to send
+            $this->command[self::PKG_STACK][self::RESP_EMIT] = $atProgress->getCommandData();  // TODO: move recursion to send
     }
 
     public function getCommandData()
@@ -28,3 +28,4 @@ class QueueCommandBase implements QueueConst
         return $this->command;
     }
 }
+

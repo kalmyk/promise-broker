@@ -8,7 +8,6 @@ class StreamParserTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->parser = new StreamParser();
     }
 
     public function tearDown()
@@ -16,25 +15,51 @@ class StreamParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('', $this->parser->testBuffer(), 'buffer has to be empty at end');
     }
 
-    function testOutboundText()
+    function testSerializeDataRaw()
     {
-        $expectedResult = "l2\r\nline 1\r\nline 2\r\n";
-        $result = $this->parser->serialize(array('line 1','line 2'), '');
+        $this->parser = new StreamParser(false);
+        $result = $this->parser->serialize(array('line 1','line 2'), 'data packet');
 
-        $this->assertEquals($expectedResult, $result);
+        $this->assertEquals("l2d11\r\n\"line 1\"\r\n\"line 2\"\r\ndata packet\r\n", $result);
     }
 
-    function testOutboundData()
+    function testSerializeDataJson()
     {
-        $expectedResult = "l1d19\r\nline 1\r\ndata\r\ntext\r\nmessage\r\n";
+        $this->parser = new StreamParser(true);
+        $result = $this->parser->serialize(array('line 1','line 2'), 'data packet');
+
+        $this->assertEquals("l2d13\r\n\"line 1\"\r\n\"line 2\"\r\n\"data packet\"\r\n", $result);
+    }
+
+    function testSerializeDataMultilineRaw()
+    {
+        $this->parser = new StreamParser(false);
+
         $result = $this->parser->serialize(array('line 1'), "data\r\ntext\r\nmessage");
 
-        $this->assertEquals($expectedResult, $result);
+        $this->assertEquals(
+            "l1d19\r\n\"line 1\"\r\ndata\r\ntext\r\nmessage\r\n",
+            $result
+        );
     }
 
-    function testInboundText()
+    function testSerializeDataMultilineJson()
     {
-        $messageText = "l2\r\nline 1 message 12345236\r\nline 2 {:{:{:}:}:}\r\n";
+        $this->parser = new StreamParser(true);
+
+        $result = $this->parser->serialize(array('line 1'), "data\r\ntext\r\nmessage");
+
+        $this->assertEquals(
+            "l1d25\r\n\"line 1\"\r\n".'"data\r\ntext\r\nmessage"'."\r\n",
+            $result
+        );
+    }
+
+    function testParseTextRaw()
+    {
+        $this->parser = new StreamParser(false);
+
+        $messageText = "l2d11\r\n\"line 1 message 12345236\"\r\n\"line 2 {:{:{:}:}:}\"\r\ndata packet\r\n";
         $stream = '';
         for ($i=0; $i < 100; $i++)
             $stream .= $messageText;
@@ -48,18 +73,23 @@ class StreamParserTest extends \PHPUnit_Framework_TestCase
             foreach ($messages as $msg)
             {
                 $found ++;
-                $this->assertEquals(array('line 1 message 12345236','line 2 {:{:{:}:}:}'), $msg);
+                $this->assertEquals(
+                    array('line 1 message 12345236','line 2 {:{:{:}:}:}', 'data packet'),
+                    $msg);
             }
         }
         $this->assertEquals(100, $found, 'messages lost');
     }
 
-    function testInboundData()
+    function testParseTextJson()
     {
-        $text = '>>>line 1 message 12345236 ;lasdfg {:{:{:}:}:} a o;asi fjoai a;lsi fjgo;areij rjas804tu 40tu fdjg;ls<<<';
-        $data = "line    1    \r\n \r\nm dsgf \n \n dsfg 34it-9ithg \nline 2 ~!@#$%^^&***((()_+= {:{:{:}:}:}";
+        $this->parser = new StreamParser(true);
 
-        $messageText = "l1d".strlen($data)."\r\n$text\r\n$data\r\n";
+        $header = 'line 1';
+        $data = "line    1    \"\r\n\"34it line 2 ~!@#$%^^&*sa()_-+= {:f{f:g{g:h}h:j}j:k}k";
+        $dataJSON = json_encode($data);
+
+        $messageText = "l1d".strlen($dataJSON)."\r\n".json_encode($header)."\r\n$dataJSON\r\n";
 
         $stream = '';
         for ($i=0; $i < 100; $i++)
@@ -74,8 +104,8 @@ class StreamParserTest extends \PHPUnit_Framework_TestCase
             foreach ($messages as $msg)
             {
                 $found ++;
-                $this->assertEquals(2, count($msg));
-                $this->assertEquals($text, $msg[0]);
+                $this->assertEquals(2, count($msg), "message package incorrect");
+                $this->assertEquals($header, $msg[0]);
                 $this->assertEquals($data, $msg[1]);
             }
         }

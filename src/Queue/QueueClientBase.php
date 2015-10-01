@@ -30,10 +30,7 @@ class QueueClientBase implements QueueConst, QueueClientInterface
         call_user_func(
             $this->onMessage,
             array(
-                json_encode($obj->getCommandData(
-                    array($this, 'sendTaskResponse'),
-                    array($this, 'checkPopTask')
-                ))
+                json_encode($obj->getCommandData())
             ),
             ''  /* stream data */
         );
