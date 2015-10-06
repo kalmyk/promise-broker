@@ -2,8 +2,9 @@
 
 namespace Kalmyk\Queue\Client;
 
-use Kalmyk\Queue\StreamParser;
+use \Kalmyk\Queue\StreamParser;
 use Evenement\EventEmitter;
+use \Kalmyk\Queue\QueueClientInterface;
 
 class Socket
 {
@@ -14,7 +15,7 @@ class Socket
         $client->setOnMessage(
             function ($message, $data) use ($stream, $parser)
             {
-                $stream->write($parser->serialize($message, $data));
+                $stream->write($parser->serialize($message, $data, true));
             }
         );
 
@@ -22,10 +23,14 @@ class Socket
             function ($data) use ($parser, $client)
             {
                 try {
-                    $messages = $parser->parse($data);
+                    $messages = $parser->parse($data, true);
 
                     foreach ($messages as $message)
-                        $client->receive($message);
+                    {
+                        $header = $message[0];
+                        $data = isset($message[1])?$message[1]:NULL;
+                        $client->receive($header, $data);
+                    }
                 }
                 catch (\Exception $e) {
                     $client->close();

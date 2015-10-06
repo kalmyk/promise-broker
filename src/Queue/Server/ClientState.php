@@ -6,7 +6,7 @@ class ClientState implements \Kalmyk\Queue\QueueConst
 {
     private $clientId = NULL;
     private $popState = 0;
-    private $onMessage = NULL;
+    private $onSendMessage = NULL;
 
     /**
         subscribtion commands
@@ -25,9 +25,9 @@ class ClientState implements \Kalmyk\Queue\QueueConst
         $this->clientId = $broker->attachClient($this);
     }
 
-    function setOnMessage(callable $onMessage)
+    function setOnSendMessage(callable $onSendMessage)
     {
-        $this->onMessage = $onMessage;
+        $this->onSendMessage = $onSendMessage;
     }
 
     function getId()
@@ -80,6 +80,7 @@ class ClientState implements \Kalmyk\Queue\QueueConst
                 $subD,
                 self::RESP_EMIT,
                 $rawData,
+                false,
                 $header
             );
         }
@@ -100,15 +101,16 @@ class ClientState implements \Kalmyk\Queue\QueueConst
                     $subD,
                     self::RESP_EMIT,
                     $rawData,
+                    false,
                     $header
                 );
             }
         }
         return true;
     }
-    
-    public function send($message)
+
+    public function sendMessage($header, $data, $doEncodeData)
     {
-        call_user_func($this->onMessage, $message, '' /* stream */);
+        call_user_func($this->onSendMessage, $header, $data, $doEncodeData);
     }
 }

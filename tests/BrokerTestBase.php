@@ -13,57 +13,47 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
     private $streams = array();
 
     // return QueueClient
-    protected function connectClient($srvName, PromiseBroker $server, $cliName, &$clientState)
+    protected function connectClient($srvName, PromiseBroker $broker, $cliName, &$clientState)
     {
         // the Network!
-        $cliSocket = new NullStream();
-        $srvSocket = new NullStream();
+        $cliSocket = new NullStream(true);
+        $srvSocket = new NullStream(false);
         $this->streams[] = $cliSocket;
         $this->streams[] = $srvSocket;
         $cliSocket->setStream($srvSocket);
         $srvSocket->setStream($cliSocket);
 
         // Listen data on the Queue Server
-        $clientState = new ClientState($server);
+        $clientState = new ClientState($broker);
         $srvSocket->setOnReceive(
-            function ($data) use ($srvName, $server, $clientState, $cliName)
+            function ($message) use ($srvName, $broker, $clientState, $cliName)
             {
-                $this->assertTrue(is_array($data), 'protocol error, array of strings expected!');
-                foreach ($data as $line)
-                {
 //echo "$cliName > $srvName $line\n";
 //file_put_contents('/tmp/q.log', "$cliName > $srvName $line\n", FILE_APPEND);
-                    $this->assertTrue(is_string($line), 'protocol error, string line expected!');
-                }
-                $server->process($data, $clientState);
+                $broker->process($message[0], isset($message[1])?$message[1]:NULL, $clientState);
             }
         );
-        $clientState->setOnMessage(
-            function ($message) use ($srvSocket)
+        $clientState->setOnSendMessage(
+            function ($header, $data, $doEncodeData) use ($srvSocket)
             {
-                $srvSocket->send($message);
+                $srvSocket->send($header, $data, $doEncodeData);
             }
         );
 
         // Client or Worker
         $cli = new QueueClient();
         $cliSocket->setOnReceive(
-            function ($data) use ($srvName, $cli, $cliName)
+            function ($message) use ($srvName, $cli, $cliName)
             {
-                $this->assertTrue(is_array($data), 'protocol error, array of strings expected!');
-                foreach ($data as $line)
-                {
 //echo "$srvName > $cliName $line\n";
 //file_put_contents('/tmp/q.log', "$cliName < $srvName $line\n", FILE_APPEND);
-                    $this->assertTrue(is_string($line), 'protocol error, string line expected!');
-                }
-                $cli->receive($data);
+                $cli->receive($message[0], isset($message[1])?$message[1]:NULL);
             }
         );
         $cli->setOnMessage(
-            function ($data) use ($cliSocket)
+            function ($header, $data) use ($cliSocket)
             {
-                $cliSocket->send($data);
+                $cliSocket->send($header, $data, true);
             }
         );
         return $cli;
@@ -72,8 +62,8 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
     protected function linkBroker(PromiseBroker $master, PromiseBroker $slave)
     {
         // the Network!
-        $cliSocket = new NullStream();
-        $srvSocket = new NullStream();
+        $cliSocket = new NullStream(false);
+        $srvSocket = new NullStream(false);
         $this->streams[] = $cliSocket;
         $this->streams[] = $srvSocket;
         $cliSocket->setStream($srvSocket);
@@ -84,19 +74,14 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
         $srvSocket->setOnReceive(
             function ($data) use ($master, $clientState)
             {
-                $this->assertTrue(is_array($data), 'protocol error, array of strings expected!');
-                foreach ($data as $line)
-                {
 //echo "Slave > Master $line\n";
-                    $this->assertTrue(is_string($line), 'protocol error, string line expected!');
-                }
                 $master->process($data, $clientState);
             }
         );
-        $clientState->setOnMessage(
-            function ($message) use ($srvSocket)
+        $clientState->setOnSendMessage(
+            function ($header, $data, $doEncodeData) use ($srvSocket)
             {
-                $srvSocket->send($message);
+                $srvSocket->send($header, $data, $doEncodeData);
             }
         );
 
@@ -106,18 +91,14 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
             function ($data) use ($cli, $slave)
             {
                 $this->assertTrue(is_array($data));
-                foreach ($data as $line)
-                {
 //echo "Master > Slave $line\n";
-                    $this->assertTrue(is_string($line), 'protocol error');
-                }
                 $slave->process($data, $cli);
             }
         );
-        $cli->setOnMessage(
-            function ($data) use ($cliSocket)
+        $cli->setOnSendMessage(
+            function ($header, $data, $doEncodeData) use ($cliSocket)
             {
-                $cliSocket->send($data);
+                $cliSocket->send($header, $data, $doEncodeData);
             }
         );
 //TODO:        $cli->connect();

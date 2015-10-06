@@ -82,7 +82,7 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
         $a = array();
         foreach ($this->pearServer as $repl)
         {
-            $d->sendToServer($repl);
+//            $d->sendToServer($repl);
 //            $a[] = $repl->confirm($d);
         }
 /*        return \React\Promise\map($a,
@@ -230,6 +230,7 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
             $subD,
             self::RESP_EMIT,
             $taskD->data,
+            false,
             $header
         );
 
@@ -271,31 +272,32 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
 
     public function dResolve($d, $data)
     {
-        $this->dSettle($d, self::RESP_OK, json_encode($data));
+        $this->dSettle($d, self::RESP_OK, $data, true);
     }
 
     public function dReject($d, $errorCode, $message, $body=array())
     {
         $body[self::RESP_ERROR_CODE] = $errorCode;
         $body[self::RESP_ERROR_MSG]  = $message;
-        $this->dSettle($d, self::RESP_ERROR, json_encode($body));
+        $this->dSettle($d, self::RESP_ERROR, $body, true);
     }
 
-    public function dSettle($d, $mode, $rawData, $header = array())
+    public function dSettle($d, $mode, $data, $doEncodeData, $header = array())
     {
-        $newTaskHeader = $d->settle($mode, $rawData, $header);
+        $newTaskHeader = $d->settle($mode, $data, $doEncodeData, $header);
+//TODO: does it need to keep $doEncodeData in stask?
         if ($newTaskHeader)
             array_push(
                 $this->stack, 
                 array(
                     $d->client,
                     $newTaskHeader, 
-                    $rawData
+                    $data
                 )
             );
     }
 
-    public function createPromise($cmd, $client)
+    public function createDefer($cmd, $client)
     {
         switch ($cmd[self::PKG_CMD])
         {
@@ -316,25 +318,22 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
         case self::CMD_MARKER:  return new DeferMarker    ($cmd, $client);
 
         default:
-            throw new \Exception("function not found ".$cmd[self::PKG_CMD]);
+            throw new \Exception("Function not found ".$cmd[self::PKG_CMD]);
         }
     }
 
-    public function process($cmd, ClientState $client)
+    public function process($header, $data, ClientState $client)
     {
-// print_r($cmd);
         $this->stack = array(
-            array(
-                $client,
-                json_decode($cmd[0], true),
-                isset($cmd[1])?$cmd[1]:NULL
-            )
+            array($client, $header, $data)
         );
         while (count($this->stack) > 0)
         {
-            list($fromClient, $header, $rawData) = array_shift($this->stack);
-            $d = $this->createPromise($header, $fromClient);
-            $d->process($this, $rawData);
+            list($fromClient, $header, $data) = array_shift($this->stack);
+//print_r(json_encode($header));
+//print_r(json_encode($data));
+            $d = $this->createDefer($header, $fromClient);
+            $d->process($this, $data);
         }
     }
 }

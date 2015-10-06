@@ -529,7 +529,7 @@ class BrokerTest extends \QueueTests\BrokerTestBase
         $c->then(
             new Call('db')
         );
-        
+
         $this->client->send($c, array('id' => 1))->then(
             function ($response) use (&$response_arrived)
             {
@@ -537,7 +537,7 @@ class BrokerTest extends \QueueTests\BrokerTestBase
             }
         );
         $this->flushStreams();
- 
+
         $this->assertEquals(array('id' => 1,'cache'=>'loaded','db'=>'loaded'), $response_arrived);
 
         $this->worker->unSub('cache');
@@ -606,12 +606,12 @@ class BrokerTest extends \QueueTests\BrokerTestBase
             array( '10' => 'record 10' )
         );
         $storage_last_id = 10;
-    
+
         $cmd = new Marker('customer');
         $cmd->then(
             new Trace('customer', 1)
         );
-        
+
         $cur = NULL;
         $this->client->send($cmd, NULL)->then(
             NULL,

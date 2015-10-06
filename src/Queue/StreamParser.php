@@ -8,22 +8,15 @@ class StreamParser
     private $dataToRead = 0;
     private $linesToRead = 0;
     private $msgFound = array();
-    private $dataJSON = false;
-
-    public function __construct($dataJSON)
-    {
-        $this->dataJSON = $dataJSON;
-    }
 
     public function testBuffer()
     {
         return $this->inBuffer;
     }
 
-    public function parse($data)
+    public function parse($buffer, $decodeData)
     {
-// echo ">->->$data<-<-<\n";
-        $this->inBuffer .= $data;
+        $this->inBuffer .= $buffer;
         $result = array();
 
         while (true)
@@ -34,7 +27,7 @@ class StreamParser
                     return $result;
 
                 $line = substr($this->inBuffer, 0, $this->dataToRead);
-                if ($this->dataJSON)
+                if ($decodeData)
                     $this->msgFound[] = json_decode($line, true);
                 else
                     $this->msgFound[] = $line;
@@ -83,26 +76,23 @@ class StreamParser
         }
     }
 
-    public function serialize($message, $data)
+    public function serialize($header, $data, $doEncodeData)
     {
-        $result = 'l'.count($message);
-        if (strlen($data) > 0)
+        $result = 'l1';  // .count(array($header));
+        if ($data)
         {
-            if ($this->dataJSON)
+            if ($doEncodeData)
                 $data = json_encode($data);
 
             $result .= 'd'.strlen($data);
         }
-        $result .= "\r\n";
-        foreach($message as $line)
-        {
-            $result .= json_encode($line)."\r\n";
-        }
-        if (strlen($data) > 0)
+
+        $result .= "\r\n".json_encode($header)."\r\n";
+        if ($data)
         {
             $result .= "$data\r\n";
         }
-// echo ">>>$result<<<\n";
+
         return $result;
     }
 }

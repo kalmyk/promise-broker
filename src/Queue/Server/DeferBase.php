@@ -22,8 +22,8 @@ class DeferBase implements \Kalmyk\Queue\QueueConst
         $this->stack = isset($header[self::PKG_STACK]) ? $header[self::PKG_STACK] : NULL;
         $this->client = $client;
     }
-    
-    public function settle($mode, $rawData, $header = array())
+
+    public function settle($mode, $data, $doEncodeData, $header)
     {
         if (isset($this->stack[$mode]) && isset($this->stack[$mode][self::PKG_CMD]))
         {
@@ -32,7 +32,7 @@ class DeferBase implements \Kalmyk\Queue\QueueConst
 
             if (isset($this->header[self::PKG_ID]))
                 $header[self::PKG_ID] = $this->header[self::PKG_ID];
-                
+
             if (isset($c[self::PKG_STACK]))
                 $header[self::PKG_STACK] = $c[self::PKG_STACK];
 
@@ -58,32 +58,20 @@ class DeferBase implements \Kalmyk\Queue\QueueConst
                 if ($this->id)
                     $header[self::PKG_ID] = $this->id;
 
-                $this->sendToClient($mode, $header, $rawData);
+                $this->sendToClient($mode, $header, $data, $doEncodeData);
             }
             return NULL;
         }
     }
-    
+
     public function getLevel()
     {
         return isset($this->header[self::PKG_LEVEL]) ? $this->header[self::PKG_LEVEL] : 0;
     }
 
-    public function sendToClient($mode, $header, $rawData)
+    protected function sendToClient($mode, $header, $data, $doEncodeData)
     {
-        $this->client->send(array(json_encode($header),$rawData));
-    }
-
-    public function sendToServer($serverState)
-    {
-        $header = $this->header;
-        $header[self::PKG_LEVEL] = $this->getLevel()+1;
-        $serverState->send(
-            array(
-                json_encode($header),
-                json_encode(NULL)
-            )
-        );
+        $this->client->sendMessage($header, $data, $doEncodeData);
     }
 
     public function isFinished()

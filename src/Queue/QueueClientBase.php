@@ -25,21 +25,18 @@ class QueueClientBase implements QueueConst, QueueClientInterface
         $this->onMessage = $onMessage;
     }
 
-    private function sendWithNoResponse(QueueCommandBase $obj)
+    private function sendWithNoResponse($command)
     {
         call_user_func(
             $this->onMessage,
-            array(
-                json_encode($obj->getCommandData())
-            ),
-            ''  /* stream data */
+            $command,
+            NULL
         );
     }
 
-    public function send(QueueCommandBase $obj, $data, $stream = '')
+    protected function sendCommand($command, $data, $stream = '')
     {
         $this->commandId++;
-        $command = $obj->getCommandData();
         $command[self::PKG_ID] = $this->commandId;
 
         if ($stream)
@@ -51,11 +48,8 @@ class QueueClientBase implements QueueConst, QueueClientInterface
         $this->cmdList[$this->commandId] = $deferred;
         call_user_func(
             $this->onMessage,
-            array(
-                json_encode($command),
-                json_encode($data)
-            ),
-            ''  /* stream data */
+            $command,
+            $data
         );
         return $deferred->promise();
     }
@@ -70,22 +64,16 @@ class QueueClientBase implements QueueConst, QueueClientInterface
         if (!$task->responseNedded())
             return false;
 
-        $cmd = array(
-            array(
-                self::PKG_CMD => self::CMD_SETTLE,
-                self::PKG_CLIENT => $task->getClientId(),
-                self::PKG_CID => $task->getId(),
-                self::PKG_RESPONSE => $responseMode
-            ),
-            $data
+        $header = array(
+            self::PKG_CMD => self::CMD_SETTLE,
+            self::PKG_CLIENT => $task->getClientId(),
+            self::PKG_CID => $task->getId(),
+            self::PKG_RESPONSE => $responseMode
         );
         if (NULL !== $chanel)
-            $cmd[0][self::PKG_CHANEL] = $chanel;
+            $header[self::PKG_CHANEL] = $chanel;
 
-        foreach ($cmd as &$p)
-            $p = json_encode($p);
-
-        call_user_func($this->onMessage, $cmd, '');
+        call_user_func($this->onMessage, $header, $data);
     }
 
     // data could be array, task or request
@@ -144,29 +132,24 @@ class QueueClientBase implements QueueConst, QueueClientInterface
         {
             $this->tasksRequested++;
             $this->sendWithNoResponse(
-                new QueueCommandBase(
-                    array(self::PKG_CMD => self::CMD_POP)
-                )
+                array(self::PKG_CMD => self::CMD_POP)
             );
         }
         else if ($delta < 0)
         {
             $this->tasksRequested--;
             $this->sendWithNoResponse(
-                new QueueCommandBase(
-                    array(self::PKG_CMD => self::CMD_UNPOP)
-                )
+                array(self::PKG_CMD => self::CMD_UNPOP)
             );
         }
     }
 
-    public function receive($data)
+    public function receive($cmd, $data)
     {
-        $cmd = json_decode($data[0], true);
         if (isset($cmd[self::PKG_ID]) && isset($this->cmdList[$cmd[self::PKG_ID]]))
         {
             $wait = $this->cmdList[$cmd[self::PKG_ID]];
-            if ($this->settle($wait, $cmd, json_decode($data[1], true)))
+            if ($this->settle($wait, $cmd, $data))
             {
                 unset($this->cmdList[$cmd[self::PKG_ID]]);
             }

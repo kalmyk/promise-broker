@@ -26,12 +26,12 @@ class DeferSub extends DeferBaseSub
 //        $broker->sendToPear($this);
     }
 
-    public function sendToClient($mode, $header, $rawData)
+    public function sendToClient($mode, $header, $rawData, $doEncodeData)
     {
         // sending task to worker, mark worker busy
         if ($mode === self::RESP_EMIT)
             $this->client->delPopState();
 
-        parent::sendToClient($mode, $header, $rawData);
+        parent::sendToClient($mode, $header, $rawData, $doEncodeData);
     }
 }

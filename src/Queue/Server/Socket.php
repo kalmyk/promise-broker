@@ -24,11 +24,11 @@ class Socket
 
         $this->broker->attachClient($client);
 
-        $client->setOnMessage(
-            function($message, $data) use ($parser, $connection)
+        $client->setOnSendMessage(
+            function($message, $data, $doEncodeData) use ($parser, $connection)
             {
                 $connection->write(
-                    $parser->serialize($message, $data)
+                    $parser->serialize($message, $data, $doEncodeData)
                 );
             }
         );
@@ -37,10 +37,14 @@ class Socket
             function ($data) use ($connection, $parser, $client)
             {
                 try {
-                    $messages = $parser->parse($data);
+                    $messages = $parser->parse($data, false);
 
                     foreach ($messages as $message)
-                        $this->broker->process($message, $client);
+                    {
+                        $header = $message[0];
+                        $data = isset($message[1])?$message[1]:NULL;
+                        $this->broker->process($header, $data, $client);
+                    }
                 }
                 catch (\Exception $e) {
                     $connection->close();

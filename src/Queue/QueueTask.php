@@ -58,31 +58,31 @@ class QueueTask implements QueueConst
         return isset($this->cmd[self::PKG_SEGMENT]) ? $this->cmd[self::PKG_SEGMENT] : '';
     }
 
-    public function resolve($data, $chanel=NULL)
+    public function resolve($result, $chanel=NULL)
     {
         if (!$this->isFinished())
         {
             $this->isFinished = true;
-            call_user_func($this->taskResponseCallback, $this, self::RESP_OK, $data, $chanel);
+            call_user_func($this->taskResponseCallback, $this, self::RESP_OK, $result, $chanel);
             $this->cmd = NULL;
         }
     }
 
-    public function reject($data, $chanel=NULL)
+    public function reject($reason, $chanel=NULL)
     {
         if (!$this->isFinished())
         {
             $this->isFinished = true;
-            call_user_func($this->taskResponseCallback, $this, self::RESP_ERROR, $data, $chanel);
+            call_user_func($this->taskResponseCallback, $this, self::RESP_ERROR, $reason, $chanel);
             $this->cmd = NULL;
         }
     }
 
-    public function progress($data, $chanel=NULL)
+    public function progress($status, $chanel=NULL)
     {
         if (!$this->isFinished())
         {
-            call_user_func($this->taskResponseCallback, $this, self::RESP_EMIT, $data, $chanel);
+            call_user_func($this->taskResponseCallback, $this, self::RESP_EMIT, $status, $chanel);
         }
     }
 }

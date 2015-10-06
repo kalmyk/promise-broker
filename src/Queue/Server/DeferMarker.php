@@ -10,7 +10,7 @@ class DeferMarker extends DeferBase
             self::RESP_SEGMENT => $broker->pager[$queueId][self::RESP_SEGMENT],
             self::RESP_CURRENT_ID => $broker->pager[$queueId][self::RESP_CURRENT_ID]
         );
-        $broker->dSettle($this, self::RESP_EMIT, json_encode($body));
+        $broker->dSettle($this, self::RESP_EMIT, $body, true);
         $broker->dResolve($this, $body);
     }
 

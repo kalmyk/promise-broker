@@ -7,6 +7,11 @@ use \Kalmyk\Queue\QueueCommandBase;
 
 class QueueClient extends \Kalmyk\Queue\QueueClientBase
 {
+    function send(QueueCommandBase $obj, $data, $stream = '')
+    {
+        return $this->sendCommand($obj->getCommandData(), $data, $stream);
+    }
+
     function getEcho($data)
     {
         return $this->send(

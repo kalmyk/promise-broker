@@ -17,47 +17,47 @@ class StreamParserTest extends \PHPUnit_Framework_TestCase
 
     function testSerializeDataRaw()
     {
-        $this->parser = new StreamParser(false);
-        $result = $this->parser->serialize(array('line 1','line 2'), 'data packet');
+        $this->parser = new StreamParser();
+        $result = $this->parser->serialize(['i1'=>'line 1','i2'=>'line 2'], 'data packet', false);
 
-        $this->assertEquals("l2d11\r\n\"line 1\"\r\n\"line 2\"\r\ndata packet\r\n", $result);
+        $this->assertEquals("l1d11\r\n{\"i1\":\"line 1\",\"i2\":\"line 2\"}\r\ndata packet\r\n", $result);
     }
 
     function testSerializeDataJson()
     {
-        $this->parser = new StreamParser(true);
-        $result = $this->parser->serialize(array('line 1','line 2'), 'data packet');
+        $this->parser = new StreamParser();
+        $result = $this->parser->serialize('line 1', 'data packet', true);
 
-        $this->assertEquals("l2d13\r\n\"line 1\"\r\n\"line 2\"\r\n\"data packet\"\r\n", $result);
+        $this->assertEquals("l1d13\r\n\"line 1\"\r\n\"data packet\"\r\n", $result);
     }
 
     function testSerializeDataMultilineRaw()
     {
-        $this->parser = new StreamParser(false);
+        $this->parser = new StreamParser();
 
-        $result = $this->parser->serialize(array('line 1'), "data\r\ntext\r\nmessage");
+        $result = $this->parser->serialize(['line 1'], "data\r\ntext\r\nmessage", false);
 
         $this->assertEquals(
-            "l1d19\r\n\"line 1\"\r\ndata\r\ntext\r\nmessage\r\n",
+            "l1d19\r\n[\"line 1\"]\r\ndata\r\ntext\r\nmessage\r\n",
             $result
         );
     }
 
     function testSerializeDataMultilineJson()
     {
-        $this->parser = new StreamParser(true);
+        $this->parser = new StreamParser();
 
-        $result = $this->parser->serialize(array('line 1'), "data\r\ntext\r\nmessage");
+        $result = $this->parser->serialize(['line 1'], "data\r\ntext\r\nmessage", true);
 
         $this->assertEquals(
-            "l1d25\r\n\"line 1\"\r\n".'"data\r\ntext\r\nmessage"'."\r\n",
+            "l1d25\r\n[\"line 1\"]\r\n".'"data\r\ntext\r\nmessage"'."\r\n",
             $result
         );
     }
 
     function testParseTextRaw()
     {
-        $this->parser = new StreamParser(false);
+        $this->parser = new StreamParser();
 
         $messageText = "l2d11\r\n\"line 1 message 12345236\"\r\n\"line 2 {:{:{:}:}:}\"\r\ndata packet\r\n";
         $stream = '';
@@ -68,7 +68,7 @@ class StreamParserTest extends \PHPUnit_Framework_TestCase
         while (strlen($stream) > 0)
         {
             $cut = rand(3, 300);
-            $messages = $this->parser->parse(substr($stream, 0, $cut));
+            $messages = $this->parser->parse(substr($stream, 0, $cut), false);
             $stream = substr($stream, $cut);
             foreach ($messages as $msg)
             {
@@ -83,7 +83,7 @@ class StreamParserTest extends \PHPUnit_Framework_TestCase
 
     function testParseTextJson()
     {
-        $this->parser = new StreamParser(true);
+        $this->parser = new StreamParser();
 
         $header = 'line 1';
         $data = "line    1    \"\r\n\"34it line 2 ~!@#$%^^&*sa()_-+= {:f{f:g{g:h}h:j}j:k}k";
@@ -99,7 +99,7 @@ class StreamParserTest extends \PHPUnit_Framework_TestCase
         while (strlen($stream) > 0)
         {
             $cut = rand(10, 500);
-            $messages = $this->parser->parse(substr($stream, 0, $cut));
+            $messages = $this->parser->parse(substr($stream, 0, $cut), true);
             $stream = substr($stream, $cut);
             foreach ($messages as $msg)
             {

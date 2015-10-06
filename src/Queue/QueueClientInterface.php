@@ -4,8 +4,8 @@ namespace Kalmyk\Queue;
 
 interface QueueClientInterface
 {
-    // $onMessage ($message, $data)
+    // $onMessage ($header, $data)
     public function setOnMessage(callable $onMessage);
-    public function receive($data);
+    public function receive($header, $data);
     public function close();
 }
