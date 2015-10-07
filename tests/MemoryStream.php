@@ -1,10 +1,10 @@
 <?php
 
-namespace Kalmyk\Queue;
+namespace QueueTests;
 
 use \Kalmyk\Queue\StreamParser;
 
-class NullStream
+class MemoryStream
 {
     private $onReceive;
     private $stream;

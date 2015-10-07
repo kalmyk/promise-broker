@@ -6,7 +6,6 @@ use \Kalmyk\Queue\Server\PromiseBroker;
 use \Kalmyk\Queue\Server\ClientState;
 use \Kalmyk\Queue\Client\QueueClient;
 use \Kalmyk\Queue\Server\ServerState;
-use \Kalmyk\Queue\NullStream;
 
 class BrokerTestBase extends \PHPUnit_Framework_TestCase
 {
@@ -16,8 +15,8 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
     protected function connectClient($srvName, PromiseBroker $broker, $cliName, &$clientState)
     {
         // the Network!
-        $cliSocket = new NullStream(true);
-        $srvSocket = new NullStream(false);
+        $cliSocket = new MemoryStream(true);
+        $srvSocket = new MemoryStream(false);
         $this->streams[] = $cliSocket;
         $this->streams[] = $srvSocket;
         $cliSocket->setStream($srvSocket);
@@ -62,8 +61,8 @@ class BrokerTestBase extends \PHPUnit_Framework_TestCase
     protected function linkBroker(PromiseBroker $master, PromiseBroker $slave)
     {
         // the Network!
-        $cliSocket = new NullStream(false);
-        $srvSocket = new NullStream(false);
+        $cliSocket = new MemoryStream(false);
+        $srvSocket = new MemoryStream(false);
         $this->streams[] = $cliSocket;
         $this->streams[] = $srvSocket;
         $cliSocket->setStream($srvSocket);
