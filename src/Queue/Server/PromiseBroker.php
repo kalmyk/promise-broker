@@ -50,11 +50,9 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
 
     private $genClientId = 0; 
     private $stack = NULL; // current command stack
-    private $id = '';
 
-    public function __construct($id = '')
+    public function __construct()
     {
-        $this->id = $id;
     }
 
     public function attachClient(ClientState $client)

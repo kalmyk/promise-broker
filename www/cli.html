@@ -75,6 +75,7 @@
 
   function doEcho()
   {
+doSend(JSON.stringify({'^':'ECHO', '#':1}));
     q.echo('twitter').then(function (data) {writeToScreen('ECHO!');} );
   }
 

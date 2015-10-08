@@ -7,42 +7,36 @@ use React\Socket\Server as ReactServer;
 
     require dirname(__DIR__) . '/vendor/autoload.php';
 
+    // $loop = new \React\EventLoop\StreamSelectLoop();
     $loop   = LoopFactory::create();
+
     $webSocket = new ReactServer($loop);
     $webSocket->listen(8082, '0.0.0.0');
 
-    $dnsResolverFactory = new React\Dns\Resolver\Factory();
-    $dns = $dnsResolverFactory->createCached('8.8.8.8', $loop);
+    $netSocket = new ReactServer($loop);
+    $netSocket->listen(8081, '0.0.0.0');
 
-    $connector = new React\SocketClient\Connector($loop, $dns);
-    $gate = new \Kalmyk\WebSocket\QueueGate();
+    $broker = new Kalmyk\Queue\Server\PromiseBroker();
 
-    \React\Promise\Resolve($connector->createSocketForAddress('127.0.0.1', 8081))->then(
-        function ($response) use ($gate, $webSocket, $loop)
-        {
-            $socket = new \Kalmyk\Queue\Client\Socket($response, $gate);
-            $app = new \Kalmyk\WebSocket\WorkerApp($gate, $response);
-
-            $server = new IoServer(
-                new HttpServer(
-                    new WsServer(
-                        $app
-                    )
-                ),
-                $webSocket,
-                $loop
-            );
-
-        },
-        function ($reason)
-        {
-            echo "Connect ERROR!\n";
-        }
+    $openQueueLogic = new Kalmyk\Queue\Server\Socket(
+        $netSocket,
+        $broker
     );
-
 
 //    $app = new Chat();
 //    $app = new EchoMessage();
+
+    $app = new \Kalmyk\WebSocket\WebBroker($broker);
+
+    $server = new IoServer(
+        new HttpServer(
+            new WsServer(
+                $app
+            )
+        ),
+        $webSocket,
+        $loop
+    );
 
     $loop->run();
 
