@@ -3,7 +3,7 @@
 use \Kalmyk\Queue\StreamParser;
 use \Kalmyk\Queue\Server\PromiseBroker;
 
-class BrokerTest extends \QueueTests\BrokerTestBase
+class PearTest extends \QueueTests\BrokerTestBase
 {
     private $master = NULL;
     private $slave = NULL;
