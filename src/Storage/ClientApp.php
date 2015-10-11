@@ -6,15 +6,13 @@ use \Kalmyk\Queue\Client\QueueClient;
 
 class ClientApp
 {
-    private $socket;
     private $qCli = NULL;
 
     private $toSend = 100000;
     private $streamLength = 1000;
 
-    public function __construct(QueueClient $qCli, $socket)
+    public function __construct(QueueClient $qCli)
     {
-        $this->socket = $socket;
         $this->qCli = $qCli;
     }
 

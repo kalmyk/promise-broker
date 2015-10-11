@@ -25,7 +25,7 @@ class WebBroker implements MessageComponentInterface {
         $this->clients[$conn] = $client;
 
         $client->setOnSendMessage(
-            function($message, $data, $doEncodeData) use ($parser, $conn)
+            function($message, $data, $doEncodeData) use ($conn)
             {
 echo "response ";
 var_dump($message);
