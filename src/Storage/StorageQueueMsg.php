@@ -2,7 +2,7 @@
 
 namespace Kalmyk\Worker;
 
-class QueueStorage implements StorageInterface
+class StorageQueueMsg implements StorageInterface
 {
     private $db = NULL;
 
