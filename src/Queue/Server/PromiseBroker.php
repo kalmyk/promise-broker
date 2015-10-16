@@ -250,20 +250,22 @@ class PromiseBroker implements \Kalmyk\Queue\QueueConst
         {
             $q = $worker->getAllSubscriptions();
             foreach ($q as $subD)
+            {
                 if (isset($this->qCall[$subD->queue][$subD->chanel]))
                 {
                     $taskD = array_shift($this->qCall[$subD->queue][$subD->chanel]);
-                    
+
                     if (count($this->qCall[$subD->queue][$subD->chanel]) == 0)
                         unset($this->qCall[$subD->queue][$subD->chanel]);
                     if (count($this->qCall[$subD->queue]) == 0)
                         unset($this->qCall[$subD->queue]);
-                    
+
                     $this->callWorker($subD->queue, $taskD, $subD);
                     $found = true;
                 }
                 if (!$worker->getPopState())
                     return $found;
+            }
         }
         return $found;
     }
