@@ -21,11 +21,6 @@ class QueueTask implements QueueConst
         return $this->isFinished;
     }
 
-    public function responseNedded()
-    {
-        return isset($this->cmd[self::PKG_CID]);
-    }
-
     // SETTLE command, that sends result from worker to queue,
     // could find destination cliend by client id and request id
     public function getClientId()
@@ -63,7 +58,7 @@ class QueueTask implements QueueConst
         if (!$this->isFinished())
         {
             $this->isFinished = true;
-            call_user_func($this->taskResponseCallback, $this, self::RESP_OK, $result, $chanel);
+            call_user_func($this->taskResponseCallback, $this->cmd, self::RESP_OK, $result, $chanel);
             $this->cmd = NULL;
         }
     }
@@ -73,7 +68,7 @@ class QueueTask implements QueueConst
         if (!$this->isFinished())
         {
             $this->isFinished = true;
-            call_user_func($this->taskResponseCallback, $this, self::RESP_ERROR, $reason, $chanel);
+            call_user_func($this->taskResponseCallback, $this->cmd, self::RESP_ERROR, $reason, $chanel);
             $this->cmd = NULL;
         }
     }
@@ -82,7 +77,7 @@ class QueueTask implements QueueConst
     {
         if (!$this->isFinished())
         {
-            call_user_func($this->taskResponseCallback, $this, self::RESP_EMIT, $status, $chanel);
+            call_user_func($this->taskResponseCallback, $this->cmd, self::RESP_EMIT, $status, $chanel);
         }
     }
 }

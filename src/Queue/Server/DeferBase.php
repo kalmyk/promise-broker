@@ -74,11 +74,6 @@ class DeferBase implements \Kalmyk\Queue\QueueConst
         $this->client->sendMessage($header, $data, $doEncodeData);
     }
 
-    public function isFinished()
-    {
-        return isset($this->header[self::PKG_RESPONSE]);
-    }
-
     public function checkHeader($broker, &$place, $index)
     {
         if (isset($this->header[$index]))

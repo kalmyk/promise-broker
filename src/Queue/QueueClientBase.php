@@ -54,20 +54,20 @@ class QueueClientBase implements QueueConst, QueueClientInterface
         return $deferred->promise();
     }
 
-    public function sendTaskResponse(QueueTask $task, $responseMode, $data, $chanel)
+    public function sendTaskResponse($request, $responseMode, $data, $chanel)
     {
-        if ($task->isFinished())
+        if (self::RESP_OK == $responseMode || self::RESP_ERROR == $responseMode)
         {
             $this->tasksRequested--;
             $this->checkPopTask(false);
         }
-        if (!$task->responseNedded())
+        if (!isset($request[self::PKG_CID])) // no response needed
             return false;
 
         $header = array(
             self::PKG_CMD => self::CMD_SETTLE,
-            self::PKG_CLIENT => $task->getClientId(),
-            self::PKG_CID => $task->getId(),
+            self::PKG_CLIENT => $request[self::PKG_CLIENT],
+            self::PKG_CID => $request[self::PKG_CID],
             self::PKG_RESPONSE => $responseMode
         );
         if (NULL !== $chanel)
