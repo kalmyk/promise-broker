@@ -677,24 +677,4 @@ class BrokerTest extends \QueueTests\BrokerTestBase
         $this->client->unTrace('customer');
         $this->worker->unSub('customer.storage');
     }
-
-    function testReadLoginFailed()
-    {
-        $result_sub = NULL;
-        $this->client->subscribe('customer'/*, ['login' => 'profile'] */)->then(
-            function ($response) use (&$result_sub)
-            {
-                $result_sub = $response;
-            },
-            function ($reason)
-            {
-                $this->assert('no error expected');
-            },
-            function ($task)
-            {
-                $task->resolve('customer.read.result');
-            }
-        );
-        $this->client->unSub('customer');
-   }
 }
