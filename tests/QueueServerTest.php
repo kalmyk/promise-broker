@@ -14,7 +14,7 @@ class QueueServerTest extends \PHPUnit_Framework_TestCase
         $connector = new React\SocketClient\Connector($loop, $dns);
         $this->client = new \Kalmyk\Queue\Client\QueueClient();
 
-        \React\Promise\Resolve($connector->createSocketForAddress(QUEUE_SERVER_HOST, QUEUE_SERVER_PORT))->then(
+        \React\Promise\Resolve($connector->create(QUEUE_SERVER_HOST, QUEUE_SERVER_PORT))->then(
             function ($response)
             {
                 $socket = new \Kalmyk\Queue\Client\Socket($response, $this->client);
